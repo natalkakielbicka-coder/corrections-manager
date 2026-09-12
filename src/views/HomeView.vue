@@ -7,6 +7,8 @@ import DeleteCorrectionModal from '../components/corrections/DeleteCorrectionMod
 import DeleteCommentModal from '../components/comments/DeleteCommentModal.vue'
 import { useCorrections } from '../composables/useCorrections'
 import { usePages } from '../composables/usePages'
+import { useCurrentUser } from '../composables/useCurrentUser'
+import UserEntryScreen from '../components/UserEntryScreen.vue'
 
 const {
   sortedCorrections,
@@ -22,6 +24,8 @@ const {
 } = useCorrections()
 
 const { pages } = usePages()
+
+const { currentUserName, hasCurrentUser, setCurrentUser } = useCurrentUser()
 
 const selectedPageId = ref('all')
 
@@ -78,10 +82,21 @@ const handleCorrectionSubmit = (correctionData) => {
   if (correctionToEdit.value) {
     updateCorrection(correctionToEdit.value.id, correctionData)
   } else {
-    addCorrection(correctionData)
+    addCorrection({
+      ...correctionData,
+      author: currentUserName.value,
+    })
   }
 
   closeCorrectionForm()
+}
+
+const handleAddComment = ({ correctionId, content }) => {
+  addComment({
+    correctionId,
+    content,
+    author: currentUserName.value,
+  })
 }
 
 const openDeleteModal = (correctionId) => {
@@ -138,7 +153,8 @@ const confirmDeleteComment = () => {
 </script>
 
 <template>
-  <main class="page">
+  <UserEntryScreen v-if="!hasCurrentUser" @submit="setCurrentUser" />
+  <main v-else class="page">
     <section class="project-board">
       <header class="project-board__header">
         <div>
@@ -209,7 +225,7 @@ const confirmDeleteComment = () => {
 
           <CorrectionsList
             :corrections="filteredActiveCorrections"
-            @add-comment="addComment"
+            @add-comment="handleAddComment"
             @update-status="updateCorrectionStatus"
             @edit="openEditModal"
             @delete="openDeleteModal"
@@ -238,7 +254,7 @@ const confirmDeleteComment = () => {
 
           <CorrectionsList
             :corrections="filteredCompletedCorrections"
-            @add-comment="addComment"
+            @add-comment="handleAddComment"
             :show-comments="false"
             @update-status="updateCorrectionStatus"
             @edit="openEditModal"

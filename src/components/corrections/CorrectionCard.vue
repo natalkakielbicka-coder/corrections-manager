@@ -61,6 +61,10 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
         </select>
       </div>
 
+      <p v-if="correction.author" class="correction-card__author">
+        Zgłaszający: {{ correction.author }}
+      </p>
+
       <p class="correction-card__description">
         {{ correction.description }}
       </p>
@@ -263,6 +267,13 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
 
 .correction-card--without-comments .correction-card__content {
   padding-right: 0;
+}
+
+.correction-card__author {
+  margin: 6px 0 0;
+  color: #6b7b78;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 @media (max-width: 991px) {

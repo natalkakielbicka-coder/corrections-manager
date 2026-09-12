@@ -36,7 +36,7 @@ export const useCorrections = () => {
     Object.assign(correction, correctionData)
   }
 
-  const addComment = ({ correctionId, content }) => {
+  const addComment = ({ correctionId, content, author }) => {
     const correction = corrections.value.find((correctionItem) => {
       return correctionItem.id === correctionId
     })
@@ -45,7 +45,7 @@ export const useCorrections = () => {
 
     correction.comments.push({
       id: Date.now(),
-      author: 'Klient',
+      author,
       content,
       createdAt: new Date().toISOString(),
     })

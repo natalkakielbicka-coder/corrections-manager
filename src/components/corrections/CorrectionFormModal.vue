@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, computed } from 'vue'
+import { reactive, computed, ref } from 'vue'
 import BaseModal from '../ui/BaseModal.vue'
 import { usePages } from '../../composables/usePages'
 
@@ -23,7 +23,57 @@ const formData = reactive({
   description: props.correction?.description ?? '',
   pageId: props.correction?.pageId ?? '',
   status: props.correction?.status ?? 'new',
+  imageUrl: props.correction?.imageUrl ?? '',
 })
+
+const imageInput = ref(null)
+
+const imageError = ref('')
+
+const allowedImageTypes = ['image/jpeg', 'image/png', 'image/webp']
+
+const maxImageSize = 5 * 1024 * 1024
+
+const removeImage = () => {
+  formData.imageUrl = ''
+  imageError.value = ''
+
+  if (imageInput.value) {
+    imageInput.value.value = ''
+  }
+}
+
+const handleImageChange = (event) => {
+  const file = event.target.files[0]
+
+  imageError.value = ''
+
+  if (!file) return
+
+  if (!allowedImageTypes.includes(file.type)) {
+    imageError.value = 'Wybierz plik JPG, PNG lub WebP.'
+    event.target.value = ''
+    return
+  }
+
+  if (file.size > maxImageSize) {
+    imageError.value = 'Obraz nie może być większy niż 5 MB.'
+    event.target.value = ''
+    return
+  }
+
+  const reader = new FileReader()
+
+  reader.addEventListener('load', () => {
+    formData.imageUrl = reader.result
+  })
+
+  reader.addEventListener('error', () => {
+    imageError.value = 'Nie udało się odczytać obrazu.'
+  })
+
+  reader.readAsDataURL(file)
+}
 
 const submitForm = () => {
   const selectedPage = getPageById(formData.pageId)
@@ -77,6 +127,30 @@ const submitForm = () => {
             {{ page.title }}
           </option>
         </select>
+      </div>
+
+      <div class="form-field">
+        <label for="correction-image"> Zdjęcie lub zrzut ekranu </label>
+
+        <input
+          ref="imageInput"
+          id="correction-image"
+          type="file"
+          accept="image/png, image/jpeg, image/webp"
+          @change="handleImageChange"
+        />
+
+        <p class="form-field__hint">Dozwolone formaty: JPG, PNG i WebP.</p>
+
+        <p v-if="imageError" class="form-field__error" role="alert">
+          {{ imageError }}
+        </p>
+
+        <div v-if="formData.imageUrl" class="image-preview">
+          <img :src="formData.imageUrl" alt="Podgląd załączonego obrazu" />
+
+          <button type="button" @click="removeImage">Usuń zdjęcie</button>
+        </div>
       </div>
     </form>
 
@@ -144,6 +218,50 @@ const submitForm = () => {
 
 .form-field + .form-field {
   margin-top: 20px;
+}
+
+.form-field input[type='file'] {
+  padding: 10px;
+  background-color: var(--color-surface);
+  cursor: pointer;
+}
+
+.form-field__hint {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.image-preview {
+  position: relative;
+  overflow: hidden;
+  margin-top: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-background);
+}
+
+.image-preview img {
+  width: 100%;
+  max-height: 280px;
+  object-fit: contain;
+}
+
+.image-preview button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 6px;
+  background-color: rgba(180, 35, 24, 0.92);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.image-preview button:hover {
+  background-color: #8f1c13;
 }
 
 .correction-form__actions {

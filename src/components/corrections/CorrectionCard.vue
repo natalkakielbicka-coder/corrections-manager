@@ -69,6 +69,10 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
         {{ selectedPage.title }}
       </a>
 
+      <div v-if="correction.imageUrl" class="correction-card__image">
+        <img :src="correction.imageUrl" :alt="`Załącznik do poprawki: ${correction.title}`" />
+      </div>
+
       <div class="correction-card__actions">
         <button type="button" @click="emit('edit', correction.id)">Edytuj</button>
 
@@ -203,6 +207,21 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
   min-width: 0;
   padding-left: 32px;
   border-left: 1px solid var(--color-border);
+}
+
+.correction-card__image {
+  width: min(100%, 320px);
+  overflow: hidden;
+  margin-top: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-background);
+}
+
+.correction-card__image img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
 }
 
 @media (max-width: 767px) {

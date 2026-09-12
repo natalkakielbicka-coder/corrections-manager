@@ -5,7 +5,8 @@ import EmptyCorrectionsState from '../components/corrections/EmptyCorrectionsSta
 import CorrectionFormModal from '../components/corrections/CorrectionFormModal.vue'
 import { useCorrections } from '../composables/useCorrections'
 
-const { sortedCorrections, addCorrection, addComment, updateCorrectionStatus } = useCorrections()
+const { sortedCorrections, addCorrection, addComment, updateCorrectionStatus, deleteCorrection } =
+  useCorrections()
 
 const isCorrectionFormOpen = ref(false)
 
@@ -20,6 +21,14 @@ const closeCorrectionForm = () => {
 const handleCorrectionSubmit = (correctionData) => {
   addCorrection(correctionData)
   closeCorrectionForm()
+}
+
+const handleDeleteCorrection = (correctionId) => {
+  const shouldDelete = window.confirm('Czy na pewno chcesz usunąć tę poprawkę?')
+
+  if (!shouldDelete) return
+
+  deleteCorrection(correctionId)
 }
 </script>
 
@@ -51,6 +60,7 @@ const handleCorrectionSubmit = (correctionData) => {
           :number="index + 1"
           @add-comment="addComment"
           @update-status="updateCorrectionStatus"
+          @delete="handleDeleteCorrection"
         />
       </section>
 

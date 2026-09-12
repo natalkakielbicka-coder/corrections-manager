@@ -13,7 +13,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['add-comment', 'update-status'])
+const emit = defineEmits(['add-comment', 'update-status', 'delete'])
 </script>
 
 <template>
@@ -65,7 +65,7 @@ const emit = defineEmits(['add-comment', 'update-status'])
 
         <span aria-hidden="true">|</span>
 
-        <button type="button">Usuń</button>
+        <button type="button" @click="emit('delete', correction.id)">Usuń</button>
       </div>
     </div>
 
@@ -173,6 +173,10 @@ const emit = defineEmits(['add-comment', 'update-status'])
 
 .correction-card__actions button:hover {
   color: var(--color-brand);
+}
+
+.correction-card__actions .correction-card__delete:hover {
+  color: #b42318;
 }
 
 .correction-card > .comments {

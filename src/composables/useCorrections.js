@@ -51,11 +51,18 @@ export const useCorrections = () => {
     correction.status = status
   }
 
+  const deleteCorrection = (correctionId) => {
+    corrections.value = corrections.value.filter((correction) => {
+      return correction.id !== correctionId
+    })
+  }
+
   return {
     corrections,
     sortedCorrections,
     addCorrection,
     addComment,
     updateCorrectionStatus,
+    deleteCorrection,
   }
 }

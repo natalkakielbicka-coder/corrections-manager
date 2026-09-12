@@ -79,6 +79,21 @@ export const useCorrections = () => {
     })
   })
 
+  const statusCounts = computed(() => {
+    return corrections.value.reduce(
+      (counts, correction) => {
+        counts[correction.status] += 1
+
+        return counts
+      },
+      {
+        new: 0,
+        inProgress: 0,
+        ready: 0,
+      },
+    )
+  })
+
   return {
     corrections,
     sortedCorrections,
@@ -89,5 +104,6 @@ export const useCorrections = () => {
     updateCorrection,
     activeCorrections,
     completedCorrections,
+    statusCounts,
   }
 }

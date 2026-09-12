@@ -128,6 +128,10 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
 
 .correction-card__title {
   min-width: 0;
+  margin: 0;
+  color: var(--color-heading);
+  font-size: 20px;
+  line-height: 1.4;
 }
 
 .correction-card__description {
@@ -255,6 +259,10 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
     padding-left: 0;
     border-top: 1px solid var(--color-border);
     border-left: 0;
+  }
+
+  .correction-card__status {
+    flex-shrink: 0;
   }
 }
 </style>

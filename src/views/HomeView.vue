@@ -15,6 +15,7 @@ const {
   updateCorrection,
   activeCorrections,
   completedCorrections,
+  statusCounts,
 } = useCorrections()
 
 const isCorrectionFormOpen = ref(false)
@@ -83,6 +84,23 @@ const confirmDeleteCorrection = () => {
           <p class="project-board__description">
             Tu wspólnie zapisujemy i omawiamy poprawki do projektu.
           </p>
+
+          <dl class="status-summary">
+            <div class="status-summary__item status-summary__item--new">
+              <dt>Nowe</dt>
+              <dd>{{ statusCounts.new }}</dd>
+            </div>
+
+            <div class="status-summary__item status-summary__item--progress">
+              <dt>W trakcie</dt>
+              <dd>{{ statusCounts.inProgress }}</dd>
+            </div>
+
+            <div class="status-summary__item status-summary__item--ready">
+              <dt>Gotowe</dt>
+              <dd>{{ statusCounts.ready }}</dd>
+            </div>
+          </dl>
         </div>
 
         <button class="button" type="button" @click="openCorrectionForm">
@@ -320,6 +338,53 @@ h1 {
   color: var(--color-brand);
   font-size: 13px;
   font-weight: 800;
+}
+
+.status-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0 0;
+}
+
+.status-summary__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-summary__item dt,
+.status-summary__item dd {
+  margin: 0;
+}
+
+.status-summary__item dd {
+  display: flex;
+  min-width: 22px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.75);
+}
+
+.status-summary__item--new {
+  background-color: #fee2e2;
+  color: #b42318;
+}
+
+.status-summary__item--progress {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-summary__item--ready {
+  background-color: #d1fae5;
+  color: #067647;
 }
 
 @media (max-width: 767px) {

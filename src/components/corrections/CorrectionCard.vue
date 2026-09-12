@@ -2,7 +2,7 @@
 import { correctionStatuses } from '../../constants/correctionStatuses'
 import CorrectionComments from '../comments/CorrectionComments.vue'
 
-const props = defineProps({
+defineProps({
   correction: {
     type: Object,
     required: true,
@@ -49,7 +49,7 @@ const props = defineProps({
       </div>
     </div>
 
-    <CorrectionComments :comments="correction.comments" />
+    <CorrectionComments :comments="correction.comments" :correction-id="correction.id" />
   </article>
 </template>
 
@@ -67,36 +67,6 @@ const props = defineProps({
 
 .correction-card__content {
   padding-right: 32px;
-}
-
-.correction-card__title {
-  margin: 0;
-  color: #111827;
-  font-size: 20px;
-}
-
-.correction-card__description {
-  margin: 12px 0 0;
-  color: #6b7280;
-  line-height: 1.6;
-}
-
-.correction-card__page {
-  margin: 0 0 8px;
-  color: var(--color-brand);
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.correction-card__page {
-  margin: 0;
-  color: var(--color-brand);
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
 }
 
 .correction-card__header {

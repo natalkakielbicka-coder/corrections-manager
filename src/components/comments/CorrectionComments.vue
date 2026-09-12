@@ -1,12 +1,18 @@
 <script setup>
 import { formatDate } from '../../utils/dateFormatters'
 
-defineProps({
+const props = defineProps({
   comments: {
     type: Array,
     required: true,
   },
+  correctionId: {
+    type: Number,
+    required: true,
+  },
 })
+
+const commentInputId = `comment-${props.correctionId}`
 </script>
 
 <template>
@@ -35,10 +41,10 @@ defineProps({
 
     <p v-else class="comments__empty">Brak komentarzy.</p>
 
-    <form class="comments__form">
-      <label class="sr-only" for="comment"> Napisz komentarz </label>
+    <form class="comments__form" @submit.prevent>
+      <label class="sr-only" :for="commentInputId"> Napisz komentarz </label>
 
-      <input id="comment" type="text" placeholder="Napisz komentarz..." />
+      <input :id="commentInputId" type="text" placeholder="Napisz komentarz..." />
 
       <button type="submit">Dodaj</button>
     </form>

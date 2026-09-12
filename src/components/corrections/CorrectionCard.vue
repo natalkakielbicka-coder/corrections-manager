@@ -13,6 +13,10 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  showComments: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const { getPageById } = usePages()
@@ -25,7 +29,7 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
 </script>
 
 <template>
-  <article class="correction-card">
+  <article class="correction-card" :class="{ 'correction-card--without-comments': !showComments }">
     <div class="correction-card__content">
       <div class="correction-card__header">
         <h2 class="correction-card__title">
@@ -89,6 +93,7 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
     </div>
 
     <CorrectionComments
+      v-if="showComments"
       :comments="correction.comments"
       :correction-id="correction.id"
       @add="emit('add-comment', $event)"
@@ -99,7 +104,7 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
 <style scoped>
 .correction-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
   padding-block: 24px;
   border-bottom: 1px solid var(--color-border);
 }
@@ -110,20 +115,19 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
 
 .correction-card__content {
   min-width: 0;
-  padding-right: 32px;
+  padding-right: 28px;
 }
 
 .correction-card__header {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
 }
 
 .correction-card__title {
-  margin: 0;
-  color: var(--color-heading);
-  font-size: 20px;
-  line-height: 1.4;
+  min-width: 0;
 }
 
 .correction-card__description {
@@ -205,7 +209,7 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
 
 .correction-card > .comments {
   min-width: 0;
-  padding-left: 32px;
+  padding-left: 24px;
   border-left: 1px solid var(--color-border);
 }
 
@@ -224,11 +228,17 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
   object-fit: cover;
 }
 
+.correction-card--without-comments {
+  grid-template-columns: 1fr;
+}
+
+.correction-card--without-comments .correction-card__content {
+  padding-right: 0;
+}
+
 @media (max-width: 767px) {
   .correction-card__header {
     align-items: flex-start;
-    flex-direction: column;
-    gap: 10px;
   }
 
   .correction-card {

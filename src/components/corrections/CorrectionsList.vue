@@ -6,6 +6,10 @@ defineProps({
     type: Array,
     required: true,
   },
+  showComments: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
@@ -17,6 +21,7 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
       v-for="(correction, index) in corrections"
       :key="correction.id"
       :correction="correction"
+      :show-comments="showComments"
       :number="index + 1"
       @add-comment="emit('add-comment', $event)"
       @update-status="emit('update-status', $event)"

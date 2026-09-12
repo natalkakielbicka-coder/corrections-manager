@@ -78,36 +78,36 @@ const submitComment = () => {
 .comments__title {
   margin: 0;
   color: var(--color-heading);
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .comments__list {
   display: grid;
-  gap: 20px;
-  margin-top: 20px;
+  gap: 16px;
+  margin-top: 16px;
 }
 
 .comment {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 10px;
 }
 
 .comment + .comment {
-  padding-top: 20px;
+  padding-top: 16px;
   border-top: 1px solid var(--color-border);
 }
 
 .comment__avatar {
   display: flex;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   background-color: var(--color-brand-light);
   color: var(--color-brand);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 800;
 }
 
@@ -124,19 +124,19 @@ const submitComment = () => {
 
 .comment__header strong {
   color: var(--color-heading);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .comment__header time {
   flex-shrink: 0;
   color: var(--color-muted);
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .comment__content p {
-  margin: 4px 0 0;
+  margin: 3px 0 0;
   color: var(--color-text);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -148,18 +148,19 @@ const submitComment = () => {
 
 .comments__form {
   display: flex;
-  gap: 12px;
-  margin-top: 20px;
+  gap: 8px;
+  margin-top: 16px;
 }
 
 .comments__form input {
   width: 100%;
   min-width: 0;
-  min-height: 44px;
-  padding: 10px 14px;
+  min-height: 40px;
+  padding: 8px 12px;
   border: 1px solid var(--color-border);
   border-radius: 6px;
   color: var(--color-heading);
+  font-size: 13px;
   outline: none;
 }
 
@@ -174,12 +175,13 @@ const submitComment = () => {
 
 .comments__form button {
   flex-shrink: 0;
-  min-height: 44px;
-  padding: 10px 20px;
+  min-height: 40px;
+  padding: 8px 16px;
   border: 0;
   border-radius: 6px;
   background-color: var(--color-brand);
   color: #ffffff;
+  font-size: 13px;
   font-weight: 700;
 }
 

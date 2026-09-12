@@ -93,7 +93,16 @@ const confirmDeleteCorrection = () => {
 
       <template v-if="sortedCorrections.length">
         <section v-if="activeCorrections.length" class="corrections-section">
-          <h2 class="corrections-section__title">Aktywne</h2>
+          <div class="active-section__header">
+            <h2 class="corrections-section__title">
+              <span class="active-section__dot" aria-hidden="true"></span>
+              Aktywne
+            </h2>
+
+            <span class="active-section__count">
+              {{ activeCorrections.length }}
+            </span>
+          </div>
 
           <CorrectionsList
             :corrections="activeCorrections"
@@ -124,6 +133,7 @@ const confirmDeleteCorrection = () => {
           <CorrectionsList
             :corrections="completedCorrections"
             @add-comment="addComment"
+            :show-comments="false"
             @update-status="updateCorrectionStatus"
             @edit="openEditModal"
             @delete="openDeleteModal"
@@ -244,7 +254,9 @@ h1 {
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #b7e4cd;
 }
 
 .completed-section__header .corrections-section__title {
@@ -265,6 +277,47 @@ h1 {
   border-radius: 999px;
   background-color: #d1fae5;
   color: #067647;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.active-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 12px;
+  padding: 14px 18px;
+  border-left: 4px solid var(--color-brand);
+  border-radius: 8px;
+  background-color: var(--color-brand-light);
+}
+
+.active-section__header .corrections-section__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--color-heading);
+}
+
+.active-section__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: var(--color-brand);
+}
+
+.active-section__count {
+  display: flex;
+  min-width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 8px;
+  border-radius: 999px;
+  background-color: var(--color-surface);
+  color: var(--color-brand);
   font-size: 13px;
   font-weight: 800;
 }

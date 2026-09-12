@@ -2,7 +2,7 @@ import { ref, computed } from 'vue'
 import { initialCorrections } from '../data/corrections'
 
 export const useCorrections = () => {
-  const corrections = ref([...initialCorrections])
+  const corrections = ref(structuredClone(initialCorrections))
 
   const sortedCorrections = computed(() => {
     const correctionsCopy = [...corrections.value]

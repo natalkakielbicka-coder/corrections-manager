@@ -15,10 +15,11 @@ const props = defineProps({
 
 <template>
   <article class="correction-card">
-    <div class="correction-card__meta">
-      <p class="correction-card__page">
-        {{ correction.page }}
-      </p>
+    <div class="correction-card__header">
+      <h2 class="correction-card__title">
+        <span>{{ number }}.</span>
+        {{ correction.title }}
+      </h2>
 
       <span
         class="correction-card__status"
@@ -28,24 +29,25 @@ const props = defineProps({
       </span>
     </div>
 
-    <h2 class="correction-card__title">
-      <span>{{ number }}.</span>
-      {{ correction.title }}
-    </h2>
-
     <p class="correction-card__description">
       {{ correction.description }}
+    </p>
+
+    <p class="correction-card__page">
+      <span aria-hidden="true">🔗</span>
+      {{ correction.page }}
     </p>
   </article>
 </template>
 
 <style scoped>
 .correction-card {
-  padding: 24px;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  background-color: #ffffff;
-  margin-bottom: 20px;
+  padding-block: 24px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.correction-card:last-child {
+  border-bottom: 0;
 }
 
 .correction-card__title {
@@ -69,14 +71,6 @@ const props = defineProps({
   letter-spacing: 0.06em;
 }
 
-.correction-card__meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 12px;
-}
-
 .correction-card__page {
   margin: 0;
   color: var(--color-brand);
@@ -84,6 +78,35 @@ const props = defineProps({
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+}
+
+.correction-card__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.correction-card__title {
+  margin: 0;
+  color: var(--color-heading);
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+.correction-card__description {
+  margin: 8px 0 0;
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+.correction-card__page {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0;
+  color: var(--color-brand);
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .correction-card__status {
@@ -107,5 +130,13 @@ const props = defineProps({
 .status--ready {
   background-color: #d1fae5;
   color: #067647;
+}
+
+@media (max-width: 767px) {
+  .correction-card__header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
 }
 </style>

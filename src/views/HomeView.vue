@@ -1,3 +1,8 @@
+<script setup>
+import CorrectionCard from '../components/corrections/CorrectionCard.vue'
+import { corrections } from '../data/corrections'
+</script>
+
 <template>
   <main class="page">
     <div class="page__header">
@@ -11,6 +16,14 @@
 
       <button class="button" type="button">Dodaj poprawkę</button>
     </div>
+
+    <section class="corrections">
+      <CorrectionCard
+        v-for="correction in corrections"
+        :key="correction.id"
+        :correction="correction"
+      />
+    </section>
   </main>
 </template>
 
@@ -30,7 +43,7 @@
 
 .page__eyebrow {
   margin: 0 0 8px;
-  color: #2563eb;
+  color: var(--color-brand);
   font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
@@ -57,13 +70,19 @@ h1 {
   padding: 12px 20px;
   border: 0;
   border-radius: 8px;
-  background-color: #2563eb;
+  background-color: var(--color-brand);
   color: #ffffff;
   font-weight: 700;
 }
 
 .button:hover {
-  background-color: #1d4ed8;
+  background-color: var(--color-brand-hover);
+}
+
+.corrections {
+  display: grid;
+  gap: 16px;
+  margin-top: 40px;
 }
 
 @media (max-width: 767px) {

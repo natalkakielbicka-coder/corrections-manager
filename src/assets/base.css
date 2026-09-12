@@ -1,3 +1,16 @@
+:root {
+  --color-brand: #089c98;
+  --color-brand-hover: #078783;
+  --color-brand-light: #d9f3f1;
+
+  --color-background: #f3f6f8;
+  --color-surface: #ffffff;
+  --color-heading: #071936;
+  --color-text: #40516c;
+  --color-muted: #75849d;
+  --color-border: #dbe2e8;
+}
+
 *,
 *::before,
 *::after {
@@ -13,6 +26,9 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: 'Manrope', sans-serif;
 }
 
 button,

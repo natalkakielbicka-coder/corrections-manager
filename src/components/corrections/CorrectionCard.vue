@@ -1,8 +1,9 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { usePages } from '../../composables/usePages'
 import { correctionStatuses } from '../../constants/correctionStatuses'
 import CorrectionComments from '../comments/CorrectionComments.vue'
+import ImageLightbox from '../ui/ImageLightbox.vue'
 
 const props = defineProps({
   correction: {
@@ -24,6 +25,8 @@ const { getPageById } = usePages()
 const selectedPage = computed(() => {
   return getPageById(props.correction.pageId)
 })
+
+const isImagePreviewOpen = ref(false)
 
 const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'delete-comment'])
 </script>
@@ -73,9 +76,15 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
         {{ selectedPage.title }}
       </a>
 
-      <div v-if="correction.imageUrl" class="correction-card__image">
+      <button
+        v-if="correction.imageUrl"
+        class="correction-card__image"
+        type="button"
+        aria-label="Powiększ załączone zdjęcie"
+        @click="isImagePreviewOpen = true"
+      >
         <img :src="correction.imageUrl" :alt="`Załącznik do poprawki: ${correction.title}`" />
-      </div>
+      </button>
 
       <div class="correction-card__actions">
         <button type="button" @click="emit('edit', correction.id)">Edytuj</button>
@@ -98,6 +107,13 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
       :correction-id="correction.id"
       @add="emit('add-comment', $event)"
       @delete="emit('delete-comment', $event)"
+    />
+
+    <ImageLightbox
+      v-if="isImagePreviewOpen"
+      :src="correction.imageUrl"
+      :alt="`Załącznik do poprawki: ${correction.title}`"
+      @close="isImagePreviewOpen = false"
     />
   </article>
 </template>
@@ -219,18 +235,26 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
 }
 
 .correction-card__image {
+  display: block;
   width: min(100%, 320px);
   overflow: hidden;
   margin-top: 16px;
+  padding: 0;
   border: 1px solid var(--color-border);
   border-radius: 8px;
   background-color: var(--color-background);
+  cursor: zoom-in;
 }
 
 .correction-card__image img {
   width: 100%;
   max-height: 220px;
   object-fit: cover;
+  transition: transform 200ms ease;
+}
+
+.correction-card__image:hover img {
+  transform: scale(1.03);
 }
 
 .correction-card--without-comments {

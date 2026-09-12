@@ -12,6 +12,8 @@ defineProps({
     required: true,
   },
 })
+
+const emit = defineEmits(['add-comment'])
 </script>
 
 <template>
@@ -54,7 +56,11 @@ defineProps({
       </div>
     </div>
 
-    <CorrectionComments :comments="correction.comments" :correction-id="correction.id" />
+    <CorrectionComments
+      :comments="correction.comments"
+      :correction-id="correction.id"
+      @add="emit('add-comment', $event)"
+    />
   </article>
 </template>
 

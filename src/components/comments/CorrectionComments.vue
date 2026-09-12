@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue'
 import { formatDate } from '../../utils/dateFormatters'
 
 const props = defineProps({
@@ -12,7 +13,23 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits(['add'])
+const newComment = ref('')
+
 const commentInputId = `comment-${props.correctionId}`
+
+const submitComment = () => {
+  const content = newComment.value.trim()
+
+  if (!content) return
+
+  emit('add', {
+    correctionId: props.correctionId,
+    content,
+  })
+
+  newComment.value = ''
+}
 </script>
 
 <template>
@@ -41,10 +58,16 @@ const commentInputId = `comment-${props.correctionId}`
 
     <p v-else class="comments__empty">Brak komentarzy.</p>
 
-    <form class="comments__form" @submit.prevent>
+    <form class="comments__form" @submit.prevent="submitComment">
       <label class="sr-only" :for="commentInputId"> Napisz komentarz </label>
 
-      <input :id="commentInputId" type="text" placeholder="Napisz komentarz..." />
+      <input
+        :id="commentInputId"
+        v-model="newComment"
+        type="text"
+        placeholder="Napisz komentarz..."
+        required
+      />
 
       <button type="submit">Dodaj</button>
     </form>

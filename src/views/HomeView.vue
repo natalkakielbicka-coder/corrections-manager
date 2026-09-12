@@ -5,7 +5,7 @@ import EmptyCorrectionsState from '../components/corrections/EmptyCorrectionsSta
 import CorrectionFormModal from '../components/corrections/CorrectionFormModal.vue'
 import { useCorrections } from '../composables/useCorrections'
 
-const { sortedCorrections } = useCorrections()
+const { sortedCorrections, addCorrection, addComment } = useCorrections()
 
 const isCorrectionFormOpen = ref(false)
 
@@ -15,6 +15,11 @@ const openCorrectionForm = () => {
 
 const closeCorrectionForm = () => {
   isCorrectionFormOpen.value = false
+}
+
+const handleCorrectionSubmit = (correctionData) => {
+  addCorrection(correctionData)
+  closeCorrectionForm()
 }
 </script>
 
@@ -44,13 +49,18 @@ const closeCorrectionForm = () => {
           :key="correction.id"
           :correction="correction"
           :number="index + 1"
+          @add-comment="addComment"
         />
       </section>
 
       <EmptyCorrectionsState v-else @add="openCorrectionForm" />
     </section>
 
-    <CorrectionFormModal v-if="isCorrectionFormOpen" @close="closeCorrectionForm" />
+    <CorrectionFormModal
+      v-if="isCorrectionFormOpen"
+      @close="closeCorrectionForm"
+      @submit="handleCorrectionSubmit"
+    />
   </main>
 </template>
 

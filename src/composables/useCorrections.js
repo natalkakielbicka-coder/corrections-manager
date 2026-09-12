@@ -15,8 +15,36 @@ export const useCorrections = () => {
     })
   })
 
+  const addCorrection = (correctionData) => {
+    const newCorrection = {
+      ...correctionData,
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      comments: [],
+    }
+
+    corrections.value.push(newCorrection)
+  }
+
+  const addComment = ({ correctionId, content }) => {
+    const correction = corrections.value.find((correctionItem) => {
+      return correctionItem.id === correctionId
+    })
+
+    if (!correction) return
+
+    correction.comments.push({
+      id: Date.now(),
+      author: 'Klient',
+      content,
+      createdAt: new Date().toISOString(),
+    })
+  }
+
   return {
     corrections,
     sortedCorrections,
+    addCorrection,
+    addComment,
   }
 }

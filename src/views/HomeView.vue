@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import CorrectionCard from '../components/corrections/CorrectionCard.vue'
+import CorrectionsList from '../components/corrections/CorrectionsList.vue'
 import EmptyCorrectionsState from '../components/corrections/EmptyCorrectionsState.vue'
 import CorrectionFormModal from '../components/corrections/CorrectionFormModal.vue'
 import DeleteCorrectionModal from '../components/corrections/DeleteCorrectionModal.vue'
@@ -13,6 +13,8 @@ const {
   updateCorrectionStatus,
   deleteCorrection,
   updateCorrection,
+  activeCorrections,
+  completedCorrections,
 } = useCorrections()
 
 const isCorrectionFormOpen = ref(false)
@@ -89,18 +91,45 @@ const confirmDeleteCorrection = () => {
         </button>
       </header>
 
-      <section class="corrections" v-if="sortedCorrections.length">
-        <CorrectionCard
-          v-for="(correction, index) in sortedCorrections"
-          :key="correction.id"
-          :correction="correction"
-          :number="index + 1"
-          @add-comment="addComment"
-          @update-status="updateCorrectionStatus"
-          @edit="openEditModal"
-          @delete="openDeleteModal"
-        />
-      </section>
+      <template v-if="sortedCorrections.length">
+        <section v-if="activeCorrections.length" class="corrections-section">
+          <h2 class="corrections-section__title">Aktywne</h2>
+
+          <CorrectionsList
+            :corrections="activeCorrections"
+            @add-comment="addComment"
+            @update-status="updateCorrectionStatus"
+            @edit="openEditModal"
+            @delete="openDeleteModal"
+          />
+        </section>
+
+        <p v-else class="no-active-corrections">Wszystkie poprawki zostały wykonane.</p>
+
+        <section
+          v-if="completedCorrections.length"
+          class="corrections-section corrections-section--completed"
+        >
+          <div class="completed-section__header">
+            <h2 class="corrections-section__title">
+              <span aria-hidden="true">✓</span>
+              Gotowe
+            </h2>
+
+            <span class="completed-section__count">
+              {{ completedCorrections.length }}
+            </span>
+          </div>
+
+          <CorrectionsList
+            :corrections="completedCorrections"
+            @add-comment="addComment"
+            @update-status="updateCorrectionStatus"
+            @edit="openEditModal"
+            @delete="openDeleteModal"
+          />
+        </section>
+      </template>
 
       <EmptyCorrectionsState v-else @add="openCorrectionForm" />
     </section>
@@ -186,9 +215,58 @@ h1 {
   background-color: var(--color-brand-hover);
 }
 
-.corrections {
-  display: grid;
-  margin-top: 24px;
+.corrections-section {
+  margin-top: 32px;
+}
+
+.corrections-section__title {
+  margin: 0 0 8px;
+  color: var(--color-heading);
+  font-size: 20px;
+}
+
+.corrections-section--completed {
+  margin-top: 40px;
+  padding: 24px 28px;
+  border: 1px solid #b7e4cd;
+  border-radius: 10px;
+  background-color: #f0faf5;
+}
+
+.no-active-corrections {
+  margin: 48px 0;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.completed-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 8px;
+}
+
+.completed-section__header .corrections-section__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0;
+  color: #067647;
+}
+
+.completed-section__count {
+  display: flex;
+  min-width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 8px;
+  border-radius: 999px;
+  background-color: #d1fae5;
+  color: #067647;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 @media (max-width: 767px) {
@@ -207,6 +285,10 @@ h1 {
 
   .button {
     width: 100%;
+  }
+
+  .corrections-section--completed {
+    padding: 20px;
   }
 }
 </style>

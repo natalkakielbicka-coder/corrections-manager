@@ -1,11 +1,12 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import CorrectionsList from '../components/corrections/CorrectionsList.vue'
 import EmptyCorrectionsState from '../components/corrections/EmptyCorrectionsState.vue'
 import CorrectionFormModal from '../components/corrections/CorrectionFormModal.vue'
 import DeleteCorrectionModal from '../components/corrections/DeleteCorrectionModal.vue'
 import DeleteCommentModal from '../components/comments/DeleteCommentModal.vue'
 import { useCorrections } from '../composables/useCorrections'
+import { usePages } from '../composables/usePages'
 
 const {
   sortedCorrections,
@@ -19,6 +20,32 @@ const {
   statusCounts,
   deleteComment,
 } = useCorrections()
+
+const { pages } = usePages()
+
+const selectedPageId = ref('all')
+
+const filterCorrectionsByPage = (corrections) => {
+  if (selectedPageId.value === 'all') {
+    return corrections
+  }
+
+  return corrections.filter((correction) => {
+    return correction.pageId === selectedPageId.value
+  })
+}
+
+const filteredActiveCorrections = computed(() => {
+  return filterCorrectionsByPage(activeCorrections.value)
+})
+
+const filteredCompletedCorrections = computed(() => {
+  return filterCorrectionsByPage(completedCorrections.value)
+})
+
+const hasFilteredCorrections = computed(() => {
+  return filteredActiveCorrections.value.length > 0 || filteredCompletedCorrections.value.length > 0
+})
 
 const isCorrectionFormOpen = ref(false)
 
@@ -147,8 +174,28 @@ const confirmDeleteComment = () => {
         </button>
       </header>
 
+      <div class="corrections-filters">
+        <label for="page-filter"> Pokaż poprawki dla strony </label>
+
+        <select id="page-filter" v-model="selectedPageId">
+          <option value="all">Wszystkie strony</option>
+
+          <option v-for="page in pages" :key="page.id" :value="page.id">
+            {{ page.title }}
+          </option>
+        </select>
+      </div>
+
+      <div v-if="!hasFilteredCorrections" class="filter-empty-state">
+        <h2>Brak poprawek</h2>
+
+        <p>Dla wybranej strony nie dodano jeszcze żadnych poprawek.</p>
+
+        <button type="button" @click="selectedPageId = 'all'">Pokaż wszystkie strony</button>
+      </div>
+
       <template v-if="sortedCorrections.length">
-        <section v-if="activeCorrections.length" class="corrections-section">
+        <section v-if="filteredActiveCorrections.length" class="corrections-section">
           <div class="active-section__header">
             <h2 class="corrections-section__title">
               <span class="active-section__dot" aria-hidden="true"></span>
@@ -156,12 +203,12 @@ const confirmDeleteComment = () => {
             </h2>
 
             <span class="active-section__count">
-              {{ activeCorrections.length }}
+              {{ filteredActiveCorrections.length }}
             </span>
           </div>
 
           <CorrectionsList
-            :corrections="activeCorrections"
+            :corrections="filteredActiveCorrections"
             @add-comment="addComment"
             @update-status="updateCorrectionStatus"
             @edit="openEditModal"
@@ -170,10 +217,12 @@ const confirmDeleteComment = () => {
           />
         </section>
 
-        <p v-else class="no-active-corrections">Wszystkie poprawki zostały wykonane.</p>
+        <p v-else-if="hasFilteredCorrections" class="no-active-corrections">
+          Brak aktywnych poprawek dla wybranej strony.
+        </p>
 
         <section
-          v-if="completedCorrections.length"
+          v-if="filteredCompletedCorrections.length"
           class="corrections-section corrections-section--completed"
         >
           <div class="completed-section__header">
@@ -183,12 +232,12 @@ const confirmDeleteComment = () => {
             </h2>
 
             <span class="completed-section__count">
-              {{ completedCorrections.length }}
+              {{ filteredCompletedCorrections.length }}
             </span>
           </div>
 
           <CorrectionsList
-            :corrections="completedCorrections"
+            :corrections="filteredCompletedCorrections"
             @add-comment="addComment"
             :show-comments="false"
             @update-status="updateCorrectionStatus"
@@ -433,6 +482,69 @@ h1 {
   color: #067647;
 }
 
+.corrections-filters {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.corrections-filters label {
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.corrections-filters select {
+  min-width: 220px;
+  min-height: 42px;
+  padding: 8px 36px 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background-color: var(--color-surface);
+  color: var(--color-heading);
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+}
+
+.corrections-filters select:focus {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px var(--color-brand-light);
+}
+
+.filter-empty-state {
+  padding: 64px 24px;
+  text-align: center;
+}
+
+.filter-empty-state h2 {
+  margin: 0;
+  color: var(--color-heading);
+  font-size: 26px;
+}
+
+.filter-empty-state p {
+  margin: 12px 0 0;
+  color: var(--color-muted);
+}
+
+.filter-empty-state button {
+  min-height: 44px;
+  margin-top: 24px;
+  padding: 10px 18px;
+  border: 1px solid var(--color-brand);
+  border-radius: 6px;
+  background-color: var(--color-surface);
+  color: var(--color-brand);
+  font-weight: 700;
+}
+
+.filter-empty-state button:hover {
+  background-color: var(--color-brand-light);
+}
+
 @media (max-width: 991px) {
   .page {
     padding: 24px;
@@ -477,6 +589,15 @@ h1 {
 
   .active-section__header {
     padding: 12px 14px;
+  }
+
+  .corrections-filters {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .corrections-filters select {
+    width: 100%;
   }
 }
 

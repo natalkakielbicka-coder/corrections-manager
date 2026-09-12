@@ -6,6 +6,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  number: {
+    type: Number,
+    required: true,
+  },
 })
 </script>
 
@@ -25,6 +29,7 @@ const props = defineProps({
     </div>
 
     <h2 class="correction-card__title">
+      <span>{{ number }}.</span>
       {{ correction.title }}
     </h2>
 
@@ -40,6 +45,7 @@ const props = defineProps({
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   background-color: #ffffff;
+  margin-bottom: 20px;
 }
 
 .correction-card__title {
@@ -56,7 +62,7 @@ const props = defineProps({
 
 .correction-card__page {
   margin: 0 0 8px;
-  color: #2563eb;
+  color: var(--color-brand);
   font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;

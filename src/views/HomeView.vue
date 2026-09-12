@@ -5,67 +5,88 @@ import { corrections } from '../data/corrections'
 
 <template>
   <main class="page">
-    <div class="page__header">
-      <div>
-        <p class="page__eyebrow">Lista zgłoszeń</p>
-        <h1>Poprawki</h1>
-        <p class="page__description">
-          Zarządzaj poprawkami zgłoszonymi do realizowanych projektów.
-        </p>
-      </div>
+    <section class="project-board">
+      <header class="project-board__header">
+        <div>
+          <h1>Poprawki do strony</h1>
 
-      <button class="button" type="button">Dodaj poprawkę</button>
-    </div>
+          <p class="project-board__name">Zielony Dom</p>
 
-    <section class="corrections">
-      <CorrectionCard
-        v-for="correction in corrections"
-        :key="correction.id"
-        :correction="correction"
-      />
+          <p class="project-board__description">
+            Tu wspólnie zapisujemy i omawiamy poprawki do projektu.
+          </p>
+        </div>
+
+        <button class="button" type="button">
+          <span aria-hidden="true">+</span>
+          Dodaj poprawkę
+        </button>
+      </header>
+
+      <section class="corrections">
+        <CorrectionCard
+          v-for="(correction, index) in corrections"
+          :key="correction.id"
+          :correction="correction"
+          :number="index + 1"
+        />
+      </section>
     </section>
   </main>
 </template>
 
 <style scoped>
 .page {
-  width: min(100% - 32px, 1280px);
-  margin-inline: auto;
-  padding-block: 48px;
+  min-height: 100vh;
+  padding: 48px 24px;
 }
 
-.page__header {
+.project-board {
+  width: min(100%, 1280px);
+  min-height: calc(100vh - 96px);
+  margin-inline: auto;
+  padding: 48px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background-color: var(--color-surface);
+  box-shadow: 0 16px 50px rgba(7, 25, 54, 0.06);
+}
+
+.project-board__header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 32px;
-}
-
-.page__eyebrow {
-  margin: 0 0 8px;
-  color: var(--color-brand);
-  font-size: 14px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--color-border);
 }
 
 h1 {
   margin: 0;
-  color: #111827;
-  font-size: clamp(36px, 5vw, 56px);
-  line-height: 1;
+  color: var(--color-heading);
+  font-size: clamp(32px, 4vw, 44px);
+  line-height: 1.1;
 }
 
-.page__description {
-  max-width: 600px;
-  margin: 16px 0 0;
-  color: #6b7280;
+.project-board__name {
+  margin: 8px 0 0;
+  color: var(--color-heading);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.project-board__description {
+  margin: 8px 0 0;
+  color: var(--color-muted);
   line-height: 1.6;
 }
 
 .button {
+  display: inline-flex;
   flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   min-height: 48px;
   padding: 12px 20px;
   border: 0;
@@ -81,16 +102,20 @@ h1 {
 
 .corrections {
   display: grid;
-  gap: 16px;
-  margin-top: 40px;
+  margin-top: 24px;
 }
 
 @media (max-width: 767px) {
   .page {
-    padding-block: 32px;
+    padding: 16px;
   }
 
-  .page__header {
+  .project-board {
+    min-height: calc(100vh - 32px);
+    padding: 24px 20px;
+  }
+
+  .project-board__header {
     flex-direction: column;
   }
 

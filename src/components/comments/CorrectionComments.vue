@@ -46,23 +46,25 @@ const submitComment = () => {
           <div class="comment__header">
             <strong>{{ comment.author }}</strong>
 
-            <time :datetime="comment.createdAt">
-              {{ formatDate(comment.createdAt) }}
-            </time>
+            <div class="comment__meta">
+              <time :datetime="comment.createdAt">
+                {{ formatDate(comment.createdAt) }}
+              </time>
 
-            <button
-              class="comment__delete"
-              type="button"
-              :aria-label="`Usuń komentarz użytkownika ${comment.author}`"
-              @click="
-                emit('delete', {
-                  correctionId,
-                  commentId: comment.id,
-                })
-              "
-            >
-              ×
-            </button>
+              <button
+                class="comment__delete"
+                type="button"
+                :aria-label="`Usuń komentarz użytkownika ${comment.author}`"
+                @click="
+                  emit('delete', {
+                    correctionId,
+                    commentId: comment.id,
+                  })
+                "
+              >
+                ×
+              </button>
+            </div>
           </div>
 
           <p>{{ comment.content }}</p>

@@ -1,6 +1,7 @@
 <script setup>
 import { reactive, computed } from 'vue'
 import BaseModal from '../ui/BaseModal.vue'
+import { usePages } from '../../composables/usePages'
 
 const emit = defineEmits(['close', 'submit'])
 
@@ -11,6 +12,8 @@ const props = defineProps({
   },
 })
 
+const { pages, getPageById } = usePages()
+
 const isEditing = computed(() => {
   return Boolean(props.correction)
 })
@@ -18,12 +21,15 @@ const isEditing = computed(() => {
 const formData = reactive({
   title: props.correction?.title ?? '',
   description: props.correction?.description ?? '',
-  page: props.correction?.page ?? '',
-  pageUrl: props.correction?.pageUrl ?? '',
+  pageId: props.correction?.pageId ?? '',
   status: props.correction?.status ?? 'new',
 })
 
 const submitForm = () => {
+  const selectedPage = getPageById(formData.pageId)
+
+  if (!selectedPage) return
+
   emit('submit', { ...formData })
 }
 </script>
@@ -62,27 +68,15 @@ const submitForm = () => {
       </div>
 
       <div class="form-field">
-        <label for="correction-page">Nazwa strony</label>
+        <label for="correction-page"> Strona </label>
 
-        <input
-          id="correction-page"
-          v-model.trim="formData.page"
-          type="text"
-          placeholder="Np. Strona główna"
-          required
-        />
-      </div>
+        <select id="correction-page" v-model.number="formData.pageId" required>
+          <option disabled value="">Wybierz stronę</option>
 
-      <div class="form-field">
-        <label for="correction-page-url">Adres strony</label>
-
-        <input
-          id="correction-page-url"
-          v-model.trim="formData.pageUrl"
-          type="url"
-          placeholder="https://example.com/"
-          required
-        />
+          <option v-for="page in pages" :key="page.id" :value="page.id">
+            {{ page.title }}
+          </option>
+        </select>
       </div>
     </form>
 
@@ -119,7 +113,8 @@ const submitForm = () => {
 }
 
 .form-field input,
-.form-field textarea {
+.form-field textarea,
+.form-field select {
   width: 100%;
   padding: 11px 14px;
   border: 1px solid var(--color-border);
@@ -135,9 +130,16 @@ const submitForm = () => {
 }
 
 .form-field input:focus,
-.form-field textarea:focus {
+.form-field textarea:focus,
+.form-field select:focus {
   border-color: var(--color-brand);
   box-shadow: 0 0 0 3px var(--color-brand-light);
+}
+
+.form-field select {
+  min-height: 48px;
+  background-color: var(--color-surface);
+  cursor: pointer;
 }
 
 .form-field + .form-field {

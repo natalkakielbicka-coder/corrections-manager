@@ -1,8 +1,10 @@
 <script setup>
+import { computed } from 'vue'
+import { usePages } from '../../composables/usePages'
 import { correctionStatuses } from '../../constants/correctionStatuses'
 import CorrectionComments from '../comments/CorrectionComments.vue'
 
-defineProps({
+const props = defineProps({
   correction: {
     type: Object,
     required: true,
@@ -11,6 +13,12 @@ defineProps({
     type: Number,
     required: true,
   },
+})
+
+const { getPageById } = usePages()
+
+const selectedPage = computed(() => {
+  return getPageById(props.correction.pageId)
 })
 
 const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
@@ -51,13 +59,14 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
       </p>
 
       <a
+        v-if="selectedPage"
         class="correction-card__page"
-        :href="correction.pageUrl"
+        :href="selectedPage.url"
         target="_blank"
         rel="noopener noreferrer"
       >
         <span aria-hidden="true">🔗</span>
-        {{ correction.page }}
+        {{ selectedPage.title }}
       </a>
 
       <div class="correction-card__actions">

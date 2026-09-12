@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import CorrectionCard from '../components/corrections/CorrectionCard.vue'
 import EmptyCorrectionsState from '../components/corrections/EmptyCorrectionsState.vue'
 import CorrectionFormModal from '../components/corrections/CorrectionFormModal.vue'
+import DeleteCorrectionModal from '../components/corrections/DeleteCorrectionModal.vue'
 import { useCorrections } from '../composables/useCorrections'
 
 const { sortedCorrections, addCorrection, addComment, updateCorrectionStatus, deleteCorrection } =
@@ -14,6 +15,8 @@ const openCorrectionForm = () => {
   isCorrectionFormOpen.value = true
 }
 
+const correctionToDelete = ref(null)
+
 const closeCorrectionForm = () => {
   isCorrectionFormOpen.value = false
 }
@@ -23,12 +26,21 @@ const handleCorrectionSubmit = (correctionData) => {
   closeCorrectionForm()
 }
 
-const handleDeleteCorrection = (correctionId) => {
-  const shouldDelete = window.confirm('Czy na pewno chcesz usunąć tę poprawkę?')
+const openDeleteModal = (correctionId) => {
+  correctionToDelete.value = sortedCorrections.value.find((correction) => {
+    return correction.id === correctionId
+  })
+}
 
-  if (!shouldDelete) return
+const closeDeleteModal = () => {
+  correctionToDelete.value = null
+}
 
-  deleteCorrection(correctionId)
+const confirmDeleteCorrection = () => {
+  if (!correctionToDelete.value) return
+
+  deleteCorrection(correctionToDelete.value.id)
+  closeDeleteModal()
 }
 </script>
 
@@ -60,7 +72,7 @@ const handleDeleteCorrection = (correctionId) => {
           :number="index + 1"
           @add-comment="addComment"
           @update-status="updateCorrectionStatus"
-          @delete="handleDeleteCorrection"
+          @delete="openDeleteModal"
         />
       </section>
 
@@ -71,6 +83,13 @@ const handleDeleteCorrection = (correctionId) => {
       v-if="isCorrectionFormOpen"
       @close="closeCorrectionForm"
       @submit="handleCorrectionSubmit"
+    />
+
+    <DeleteCorrectionModal
+      v-if="correctionToDelete"
+      :correction-title="correctionToDelete.title"
+      @close="closeDeleteModal"
+      @confirm="confirmDeleteCorrection"
     />
   </main>
 </template>

@@ -1,0 +1,104 @@
+<script setup>
+import BaseModal from '../ui/BaseModal.vue'
+
+defineProps({
+  correctionTitle: {
+    type: String,
+    required: true,
+  },
+})
+
+const emit = defineEmits(['close', 'confirm'])
+</script>
+
+<template>
+  <BaseModal label="Potwierdź usunięcie poprawki" @close="emit('close')">
+    <template #header>
+      <h2 class="modal-title">Usunąć poprawkę?</h2>
+    </template>
+
+    <div class="delete-confirmation">
+      <p>
+        Czy na pewno chcesz usunąć poprawkę
+        <strong>„{{ correctionTitle }}”</strong>?
+      </p>
+
+      <p class="delete-confirmation__warning">Tej operacji nie będzie można cofnąć.</p>
+    </div>
+
+    <template #footer>
+      <div class="delete-confirmation__actions">
+        <button class="button button--secondary" type="button" @click="emit('close')">
+          Anuluj
+        </button>
+
+        <button class="button button--danger" type="button" @click="emit('confirm')">
+          Usuń poprawkę
+        </button>
+      </div>
+    </template>
+  </BaseModal>
+</template>
+
+<style scoped>
+.modal-title {
+  margin: 0;
+  color: var(--color-heading);
+  font-size: 28px;
+}
+
+.delete-confirmation p {
+  margin: 0;
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+.delete-confirmation__warning {
+  margin-top: 12px;
+  color: #b42318;
+  font-size: 14px;
+}
+
+.delete-confirmation__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.button {
+  min-height: 46px;
+  padding: 11px 18px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+.button--secondary {
+  border-color: var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
+.button--secondary:hover {
+  border-color: var(--color-muted);
+}
+
+.button--danger {
+  background-color: #b42318;
+  color: #ffffff;
+}
+
+.button--danger:hover {
+  background-color: #8f1c13;
+}
+
+@media (max-width: 479px) {
+  .delete-confirmation__actions {
+    flex-direction: column-reverse;
+  }
+
+  .delete-confirmation__actions .button {
+    width: 100%;
+  }
+}
+</style>

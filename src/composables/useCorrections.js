@@ -41,10 +41,21 @@ export const useCorrections = () => {
     })
   }
 
+  const updateCorrectionStatus = ({ correctionId, status }) => {
+    const correction = corrections.value.find((correctionItem) => {
+      return correctionItem.id === correctionId
+    })
+
+    if (!correction) return
+
+    correction.status = status
+  }
+
   return {
     corrections,
     sortedCorrections,
     addCorrection,
     addComment,
+    updateCorrectionStatus,
   }
 }

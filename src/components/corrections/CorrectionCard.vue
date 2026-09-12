@@ -13,7 +13,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['add-comment'])
+const emit = defineEmits(['add-comment', 'update-status'])
 </script>
 
 <template>
@@ -24,13 +24,26 @@ const emit = defineEmits(['add-comment'])
           <span>{{ number }}.</span>
           {{ correction.title }}
         </h2>
-
-        <span
+        <select
           class="correction-card__status"
           :class="correctionStatuses[correction.status].className"
+          :value="correction.status"
+          aria-label="Zmień status poprawki"
+          @change="
+            emit('update-status', {
+              correctionId: correction.id,
+              status: $event.target.value,
+            })
+          "
         >
-          {{ correctionStatuses[correction.status].label }}
-        </span>
+          <option
+            v-for="(statusData, statusValue) in correctionStatuses"
+            :key="statusValue"
+            :value="statusValue"
+          >
+            {{ statusData.label }}
+          </option>
+        </select>
       </div>
 
       <p class="correction-card__description">
@@ -122,6 +135,9 @@ const emit = defineEmits(['add-comment'])
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
+  border: 0;
+  cursor: pointer;
+  outline: none;
 }
 
 .status--new {

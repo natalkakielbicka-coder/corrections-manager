@@ -5,7 +5,7 @@ import EmptyCorrectionsState from '../components/corrections/EmptyCorrectionsSta
 import CorrectionFormModal from '../components/corrections/CorrectionFormModal.vue'
 import { useCorrections } from '../composables/useCorrections'
 
-const { sortedCorrections, addCorrection, addComment } = useCorrections()
+const { sortedCorrections, addCorrection, addComment, updateCorrectionStatus } = useCorrections()
 
 const isCorrectionFormOpen = ref(false)
 
@@ -50,6 +50,7 @@ const handleCorrectionSubmit = (correctionData) => {
           :correction="correction"
           :number="index + 1"
           @add-comment="addComment"
+          @update-status="updateCorrectionStatus"
         />
       </section>
 

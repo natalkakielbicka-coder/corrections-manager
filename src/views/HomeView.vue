@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import CorrectionCard from '../components/corrections/CorrectionCard.vue'
 import EmptyCorrectionsState from '../components/corrections/EmptyCorrectionsState.vue'
+import CorrectionFormModal from '../components/corrections/CorrectionFormModal.vue'
 import { useCorrections } from '../composables/useCorrections'
 
 const { sortedCorrections } = useCorrections()
@@ -10,6 +11,10 @@ const isCorrectionFormOpen = ref(false)
 
 const openCorrectionForm = () => {
   isCorrectionFormOpen.value = true
+}
+
+const closeCorrectionForm = () => {
+  isCorrectionFormOpen.value = false
 }
 </script>
 
@@ -44,6 +49,8 @@ const openCorrectionForm = () => {
 
       <EmptyCorrectionsState v-else @add="openCorrectionForm" />
     </section>
+
+    <CorrectionFormModal v-if="isCorrectionFormOpen" @close="closeCorrectionForm" />
   </main>
 </template>
 

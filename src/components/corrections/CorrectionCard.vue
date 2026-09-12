@@ -265,7 +265,7 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
   padding-right: 0;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 991px) {
   .correction-card__header {
     align-items: flex-start;
   }
@@ -288,6 +288,17 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
 
   .correction-card__status {
     flex-shrink: 0;
+  }
+}
+
+@media (max-width: 479px) {
+  .correction-card__header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .correction-card__status {
+    align-self: flex-end;
   }
 }
 </style>

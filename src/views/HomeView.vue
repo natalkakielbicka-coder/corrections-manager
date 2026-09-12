@@ -433,6 +433,17 @@ h1 {
   color: #067647;
 }
 
+@media (max-width: 991px) {
+  .page {
+    padding: 24px;
+  }
+
+  .project-board {
+    min-height: calc(100vh - 48px);
+    padding: 32px;
+  }
+}
+
 @media (max-width: 767px) {
   .page {
     padding: 16px;
@@ -452,7 +463,31 @@ h1 {
   }
 
   .corrections-section--completed {
-    padding: 20px;
+    margin-top: 28px;
+    padding: 18px;
+  }
+
+  h1 {
+    font-size: clamp(24px, 8vw, 32px);
+  }
+
+  .corrections-section__title {
+    font-size: 18px;
+  }
+
+  .active-section__header {
+    padding: 12px 14px;
+  }
+}
+
+@media (max-width: 479px) {
+  .status-summary {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .status-summary__item {
+    justify-content: space-between;
   }
 }
 </style>

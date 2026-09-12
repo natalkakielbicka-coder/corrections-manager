@@ -29,7 +29,7 @@ const submitForm = () => {
 </script>
 
 <template>
-  <BaseModal label="Dodaj poprawkę" @close="emit('close')">
+  <BaseModal :label="isEditing ? 'Edytuj poprawkę' : 'Dodaj poprawkę'" @close="emit('close')">
     <template #header>
       <h2 class="modal-title">
         {{ isEditing ? 'Edytuj poprawkę' : 'Dodaj poprawkę' }}
@@ -107,10 +107,6 @@ const submitForm = () => {
   font-size: 28px;
 }
 
-.correction-form {
-  margin-top: 32px;
-}
-
 .form-field {
   display: grid;
   gap: 8px;
@@ -139,7 +135,7 @@ const submitForm = () => {
 }
 
 .form-field input:focus,
-.form-field textarea::focus {
+.form-field textarea:focus {
   border-color: var(--color-brand);
   box-shadow: 0 0 0 3px var(--color-brand-light);
 }

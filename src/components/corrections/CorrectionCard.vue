@@ -65,7 +65,13 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
 
         <span aria-hidden="true">|</span>
 
-        <button type="button" @click="emit('delete', correction.id)">Usuń</button>
+        <button
+          class="correction-card__delete"
+          type="button"
+          @click="emit('delete', correction.id)"
+        >
+          Usuń
+        </button>
       </div>
     </div>
 

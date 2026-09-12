@@ -1,8 +1,16 @@
 <script setup>
+import { ref } from 'vue'
 import CorrectionCard from '../components/corrections/CorrectionCard.vue'
+import EmptyCorrectionsState from '../components/corrections/EmptyCorrectionsState.vue'
 import { useCorrections } from '../composables/useCorrections'
 
 const { sortedCorrections } = useCorrections()
+
+const isCorrectionFormOpen = ref(false)
+
+const openCorrectionForm = () => {
+  isCorrectionFormOpen.value = true
+}
 </script>
 
 <template>
@@ -19,13 +27,13 @@ const { sortedCorrections } = useCorrections()
           </p>
         </div>
 
-        <button class="button" type="button">
+        <button class="button" type="button" @click="openCorrectionForm">
           <span aria-hidden="true">+</span>
           Dodaj poprawkę
         </button>
       </header>
 
-      <section class="corrections">
+      <section class="corrections" v-if="sortedCorrections.length">
         <CorrectionCard
           v-for="(correction, index) in sortedCorrections"
           :key="correction.id"
@@ -33,6 +41,8 @@ const { sortedCorrections } = useCorrections()
           :number="index + 1"
         />
       </section>
+
+      <EmptyCorrectionsState v-else @add="openCorrectionForm" />
     </section>
   </main>
 </template>

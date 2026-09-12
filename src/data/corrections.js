@@ -6,6 +6,20 @@ export const corrections = [
     page: 'Strona główna',
     status: 'new',
     createdAt: '2026-09-12T07:30:00',
+    comments: [
+      {
+        id: 1,
+        author: 'Klient',
+        content: 'Nowy numer telefonu przesłałam w wiadomości.',
+        createdAt: '2026-09-12T08:10:00',
+      },
+      {
+        id: 2,
+        author: 'Natalia',
+        content: 'Dziękuję, podmienię go również w stopce.',
+        createdAt: '2026-09-12T08:25:00',
+      },
+    ],
   },
   {
     id: 2,
@@ -14,6 +28,14 @@ export const corrections = [
     page: 'Kontakt',
     status: 'inProgress',
     createdAt: '2026-09-11T15:20:00',
+    comments: [
+      {
+        id: 1,
+        author: 'Klient',
+        content: 'Problem jest najbardziej widoczny na telefonie.',
+        createdAt: '2026-09-11T16:00:00',
+      },
+    ],
   },
   {
     id: 3,
@@ -22,5 +44,6 @@ export const corrections = [
     page: 'O nas',
     status: 'ready',
     createdAt: '2026-09-10T10:15:00',
+    comments: [],
   },
 ]

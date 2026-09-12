@@ -49,7 +49,7 @@ const props = defineProps({
       </div>
     </div>
 
-    <CorrectionComments />
+    <CorrectionComments :comments="correction.comments" />
   </article>
 </template>
 

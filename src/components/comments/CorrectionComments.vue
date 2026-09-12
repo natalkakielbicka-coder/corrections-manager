@@ -1,8 +1,39 @@
+<script setup>
+import { formatDate } from '../../utils/dateFormatters'
+
+defineProps({
+  comments: {
+    type: Array,
+    required: true,
+  },
+})
+</script>
+
 <template>
   <section class="comments">
     <h3 class="comments__title">Komentarze</h3>
 
-    <p class="comments__empty">Brak komentarzy.</p>
+    <div v-if="comments.length" class="comments__list">
+      <article v-for="comment in comments" :key="comment.id" class="comment">
+        <div class="comment__avatar" aria-hidden="true">
+          {{ comment.author.charAt(0) }}
+        </div>
+
+        <div class="comment__content">
+          <div class="comment__header">
+            <strong>{{ comment.author }}</strong>
+
+            <time :datetime="comment.createdAt">
+              {{ formatDate(comment.createdAt) }}
+            </time>
+          </div>
+
+          <p>{{ comment.content }}</p>
+        </div>
+      </article>
+    </div>
+
+    <p v-else class="comments__empty">Brak komentarzy.</p>
 
     <form class="comments__form">
       <label class="sr-only" for="comment"> Napisz komentarz </label>
@@ -15,15 +46,69 @@
 </template>
 
 <style scoped>
-.comments {
-  padding-left: 32px;
-  border-left: 1px solid var(--color-border);
-}
-
 .comments__title {
   margin: 0;
   color: var(--color-heading);
   font-size: 18px;
+}
+
+.comments__list {
+  display: grid;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.comment {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.comment + .comment {
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.comment__avatar {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--color-brand-light);
+  color: var(--color-brand);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.comment__content {
+  min-width: 0;
+}
+
+.comment__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.comment__header strong {
+  color: var(--color-heading);
+  font-size: 14px;
+}
+
+.comment__header time {
+  flex-shrink: 0;
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+.comment__content p {
+  margin: 4px 0 0;
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .comments__empty {
@@ -84,13 +169,11 @@
   border: 0;
 }
 
-@media (max-width: 767px) {
-  .comments {
-    margin-top: 24px;
-    padding-top: 24px;
-    padding-left: 0;
-    border-top: 1px solid var(--color-border);
-    border-left: 0;
+@media (max-width: 479px) {
+  .comment__header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
   }
 
   .comments__form {

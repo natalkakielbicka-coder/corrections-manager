@@ -15,10 +15,19 @@ export const useCorrections = () => {
     })
   })
 
+  const getNextCorrectionNumber = () => {
+    const correctionNumbers = corrections.value.map((correction) => {
+      return correction.number
+    })
+
+    return Math.max(0, ...correctionNumbers) + 1
+  }
+
   const addCorrection = (correctionData) => {
     const newCorrection = {
       ...correctionData,
       id: Date.now(),
+      number: getNextCorrectionNumber(),
       createdAt: new Date().toISOString(),
       comments: [],
     }

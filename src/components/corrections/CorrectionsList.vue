@@ -18,11 +18,11 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
 <template>
   <div class="corrections-list">
     <CorrectionCard
-      v-for="(correction, index) in corrections"
+      v-for="correction in corrections"
       :key="correction.id"
       :correction="correction"
       :show-comments="showComments"
-      :number="index + 1"
+      :number="correction.number"
       @add-comment="emit('add-comment', $event)"
       @update-status="emit('update-status', $event)"
       @edit="emit('edit', $event)"

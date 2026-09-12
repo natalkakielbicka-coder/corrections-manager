@@ -1,6 +1,7 @@
 export const initialCorrections = [
   {
     id: 1,
+    number: 1,
     title: 'Zmiana numeru telefonu w nagłówku',
     description: 'Należy podmienić numer telefonu na wszystkich podstronach.',
     pageId: 101,
@@ -23,6 +24,7 @@ export const initialCorrections = [
   },
   {
     id: 2,
+    number: 2,
     title: 'Poprawienie odstępów w sekcji kontaktowej',
     description: 'Na urządzeniach mobilnych odstęp nad formularzem jest zbyt duży.',
     pageId: 104,
@@ -39,6 +41,7 @@ export const initialCorrections = [
   },
   {
     id: 3,
+    number: 3,
     title: 'Podmiana zdjęcia w sekcji hero',
     description: 'Nowe zdjęcie znajduje się w materiałach przesłanych przez klienta.',
     pageId: 102,

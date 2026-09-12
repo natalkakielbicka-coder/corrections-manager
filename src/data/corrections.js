@@ -1,4 +1,4 @@
-export const corrections = [
+export const initialCorrections = [
   {
     id: 1,
     title: 'Zmiana numeru telefonu w nagłówku',

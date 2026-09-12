@@ -1,6 +1,8 @@
 <script setup>
 import CorrectionCard from '../components/corrections/CorrectionCard.vue'
-import { corrections } from '../data/corrections'
+import { useCorrections } from '../composables/useCorrections'
+
+const { sortedCorrections } = useCorrections()
 </script>
 
 <template>
@@ -25,7 +27,7 @@ import { corrections } from '../data/corrections'
 
       <section class="corrections">
         <CorrectionCard
-          v-for="(correction, index) in corrections"
+          v-for="(correction, index) in sortedCorrections"
           :key="correction.id"
           :correction="correction"
           :number="index + 1"

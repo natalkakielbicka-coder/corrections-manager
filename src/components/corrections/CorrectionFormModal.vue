@@ -1,15 +1,26 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, computed } from 'vue'
 import BaseModal from '../ui/BaseModal.vue'
 
 const emit = defineEmits(['close', 'submit'])
 
+const props = defineProps({
+  correction: {
+    type: Object,
+    default: null,
+  },
+})
+
+const isEditing = computed(() => {
+  return Boolean(props.correction)
+})
+
 const formData = reactive({
-  title: '',
-  description: '',
-  page: '',
-  pageUrl: '',
-  status: 'new',
+  title: props.correction?.title ?? '',
+  description: props.correction?.description ?? '',
+  page: props.correction?.page ?? '',
+  pageUrl: props.correction?.pageUrl ?? '',
+  status: props.correction?.status ?? 'new',
 })
 
 const submitForm = () => {
@@ -20,7 +31,9 @@ const submitForm = () => {
 <template>
   <BaseModal label="Dodaj poprawkę" @close="emit('close')">
     <template #header>
-      <h2 class="modal-title">Dodaj poprawkę</h2>
+      <h2 class="modal-title">
+        {{ isEditing ? 'Edytuj poprawkę' : 'Dodaj poprawkę' }}
+      </h2>
     </template>
 
     <form id="correction-form" class="correction-form" @submit.prevent="submitForm">
@@ -80,7 +93,7 @@ const submitForm = () => {
         </button>
 
         <button class="button button--primary" type="submit" form="correction-form">
-          Dodaj poprawkę
+          {{ isEditing ? 'Zapisz zmiany' : 'Dodaj poprawkę' }}
         </button>
       </div>
     </template>

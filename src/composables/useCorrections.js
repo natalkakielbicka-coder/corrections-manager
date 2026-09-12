@@ -26,6 +26,16 @@ export const useCorrections = () => {
     corrections.value.push(newCorrection)
   }
 
+  const updateCorrection = (correctionId, correctionData) => {
+    const correction = corrections.value.find((correctionItem) => {
+      return correctionItem.id === correctionId
+    })
+
+    if (!correction) return
+
+    Object.assign(correction, correctionData)
+  }
+
   const addComment = ({ correctionId, content }) => {
     const correction = corrections.value.find((correctionItem) => {
       return correctionItem.id === correctionId
@@ -64,5 +74,6 @@ export const useCorrections = () => {
     addComment,
     updateCorrectionStatus,
     deleteCorrection,
+    updateCorrection,
   }
 }

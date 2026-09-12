@@ -13,7 +13,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['add-comment', 'update-status', 'delete'])
+const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
 </script>
 
 <template>
@@ -61,7 +61,7 @@ const emit = defineEmits(['add-comment', 'update-status', 'delete'])
       </a>
 
       <div class="correction-card__actions">
-        <button type="button">Edytuj</button>
+        <button type="button" @click="emit('edit', correction.id)">Edytuj</button>
 
         <span aria-hidden="true">|</span>
 
@@ -131,13 +131,18 @@ const emit = defineEmits(['add-comment', 'update-status', 'delete'])
 
 .correction-card__status {
   flex-shrink: 0;
-  padding: 6px 10px;
+  padding: 6px 30px 6px 12px;
+  border: 0;
   border-radius: 999px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2340516c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
   font-size: 12px;
   font-weight: 700;
-  border: 0;
   cursor: pointer;
   outline: none;
+  appearance: none;
 }
 
 .status--new {

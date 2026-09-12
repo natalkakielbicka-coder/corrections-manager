@@ -6,23 +6,48 @@ import CorrectionFormModal from '../components/corrections/CorrectionFormModal.v
 import DeleteCorrectionModal from '../components/corrections/DeleteCorrectionModal.vue'
 import { useCorrections } from '../composables/useCorrections'
 
-const { sortedCorrections, addCorrection, addComment, updateCorrectionStatus, deleteCorrection } =
-  useCorrections()
+const {
+  sortedCorrections,
+  addCorrection,
+  addComment,
+  updateCorrectionStatus,
+  deleteCorrection,
+  updateCorrection,
+} = useCorrections()
 
 const isCorrectionFormOpen = ref(false)
 
+const correctionToEdit = ref(null)
+
 const openCorrectionForm = () => {
+  correctionToEdit.value = null
   isCorrectionFormOpen.value = true
 }
 
 const correctionToDelete = ref(null)
 
+const openEditModal = (correctionId) => {
+  correctionToEdit.value = sortedCorrections.value.find((correction) => {
+    return correction.id === correctionId
+  })
+
+  if (!correctionToEdit.value) return
+
+  isCorrectionFormOpen.value = true
+}
+
 const closeCorrectionForm = () => {
   isCorrectionFormOpen.value = false
+  correctionToEdit.value = null
 }
 
 const handleCorrectionSubmit = (correctionData) => {
-  addCorrection(correctionData)
+  if (correctionToEdit.value) {
+    updateCorrection(correctionToEdit.value.id, correctionData)
+  } else {
+    addCorrection(correctionData)
+  }
+
   closeCorrectionForm()
 }
 
@@ -72,6 +97,7 @@ const confirmDeleteCorrection = () => {
           :number="index + 1"
           @add-comment="addComment"
           @update-status="updateCorrectionStatus"
+          @edit="openEditModal"
           @delete="openDeleteModal"
         />
       </section>
@@ -81,6 +107,7 @@ const confirmDeleteCorrection = () => {
 
     <CorrectionFormModal
       v-if="isCorrectionFormOpen"
+      :correction="correctionToEdit"
       @close="closeCorrectionForm"
       @submit="handleCorrectionSubmit"
     />

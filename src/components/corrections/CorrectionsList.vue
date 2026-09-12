@@ -12,7 +12,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
+const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'delete-comment'])
 </script>
 
 <template>
@@ -27,6 +27,7 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
       @update-status="emit('update-status', $event)"
       @edit="emit('edit', $event)"
       @delete="emit('delete', $event)"
+      @delete-comment="emit('delete-comment', $event)"
     />
   </div>
 </template>

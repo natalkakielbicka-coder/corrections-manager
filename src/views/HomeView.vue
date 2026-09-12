@@ -4,6 +4,7 @@ import CorrectionsList from '../components/corrections/CorrectionsList.vue'
 import EmptyCorrectionsState from '../components/corrections/EmptyCorrectionsState.vue'
 import CorrectionFormModal from '../components/corrections/CorrectionFormModal.vue'
 import DeleteCorrectionModal from '../components/corrections/DeleteCorrectionModal.vue'
+import DeleteCommentModal from '../components/comments/DeleteCommentModal.vue'
 import { useCorrections } from '../composables/useCorrections'
 
 const {
@@ -16,11 +17,13 @@ const {
   activeCorrections,
   completedCorrections,
   statusCounts,
+  deleteComment,
 } = useCorrections()
 
 const isCorrectionFormOpen = ref(false)
 
 const correctionToEdit = ref(null)
+const commentToDelete = ref(null)
 
 const openCorrectionForm = () => {
   correctionToEdit.value = null
@@ -69,6 +72,41 @@ const confirmDeleteCorrection = () => {
 
   deleteCorrection(correctionToDelete.value.id)
   closeDeleteModal()
+}
+
+const openDeleteCommentModal = ({ correctionId, commentId }) => {
+  const correction = sortedCorrections.value.find((correctionItem) => {
+    return correctionItem.id === correctionId
+  })
+
+  if (!correction) return
+
+  const comment = correction.comments.find((commentItem) => {
+    return commentItem.id === commentId
+  })
+
+  if (!comment) return
+
+  commentToDelete.value = {
+    correctionId,
+    commentId,
+    content: comment.content,
+  }
+}
+
+const closeDeleteCommentModal = () => {
+  commentToDelete.value = null
+}
+
+const confirmDeleteComment = () => {
+  if (!commentToDelete.value) return
+
+  deleteComment({
+    correctionId: commentToDelete.value.correctionId,
+    commentId: commentToDelete.value.commentId,
+  })
+
+  closeDeleteCommentModal()
 }
 </script>
 
@@ -128,6 +166,7 @@ const confirmDeleteCorrection = () => {
             @update-status="updateCorrectionStatus"
             @edit="openEditModal"
             @delete="openDeleteModal"
+            @delete-comment="openDeleteCommentModal"
           />
         </section>
 
@@ -174,6 +213,13 @@ const confirmDeleteCorrection = () => {
       :correction-title="correctionToDelete.title"
       @close="closeDeleteModal"
       @confirm="confirmDeleteCorrection"
+    />
+
+    <DeleteCommentModal
+      v-if="commentToDelete"
+      :comment-content="commentToDelete.content"
+      @close="closeDeleteCommentModal"
+      @confirm="confirmDeleteComment"
     />
   </main>
 </template>

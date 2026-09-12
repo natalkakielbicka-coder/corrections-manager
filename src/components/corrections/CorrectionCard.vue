@@ -25,7 +25,7 @@ const selectedPage = computed(() => {
   return getPageById(props.correction.pageId)
 })
 
-const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
+const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'delete-comment'])
 </script>
 
 <template>
@@ -97,6 +97,7 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete'])
       :comments="correction.comments"
       :correction-id="correction.id"
       @add="emit('add-comment', $event)"
+      @delete="emit('delete-comment', $event)"
     />
   </article>
 </template>

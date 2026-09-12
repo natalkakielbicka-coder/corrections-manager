@@ -13,7 +13,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['add'])
+const emit = defineEmits(['add', 'delete'])
 const newComment = ref('')
 
 const commentInputId = `comment-${props.correctionId}`
@@ -49,6 +49,20 @@ const submitComment = () => {
             <time :datetime="comment.createdAt">
               {{ formatDate(comment.createdAt) }}
             </time>
+
+            <button
+              class="comment__delete"
+              type="button"
+              :aria-label="`Usuń komentarz użytkownika ${comment.author}`"
+              @click="
+                emit('delete', {
+                  correctionId,
+                  commentId: comment.id,
+                })
+              "
+            >
+              ×
+            </button>
           </div>
 
           <p>{{ comment.content }}</p>
@@ -198,6 +212,33 @@ const submitComment = () => {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.comment__meta {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.comment__delete {
+  display: flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-muted);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.comment__delete:hover {
+  background-color: #fee2e2;
+  color: #b42318;
 }
 
 @media (max-width: 479px) {

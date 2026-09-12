@@ -51,6 +51,18 @@ export const useCorrections = () => {
     })
   }
 
+  const deleteComment = ({ correctionId, commentId }) => {
+    const correction = corrections.value.find((correctionItem) => {
+      return correctionItem.id === correctionId
+    })
+
+    if (!correction) return
+
+    correction.comments = correction.comments.filter((comment) => {
+      return comment.id !== commentId
+    })
+  }
+
   const updateCorrectionStatus = ({ correctionId, status }) => {
     const correction = corrections.value.find((correctionItem) => {
       return correctionItem.id === correctionId
@@ -99,6 +111,7 @@ export const useCorrections = () => {
     sortedCorrections,
     addCorrection,
     addComment,
+    deleteComment,
     updateCorrectionStatus,
     deleteCorrection,
     updateCorrection,

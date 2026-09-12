@@ -35,10 +35,15 @@ defineProps({
         {{ correction.description }}
       </p>
 
-      <p class="correction-card__page">
+      <a
+        class="correction-card__page"
+        :href="correction.pageUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <span aria-hidden="true">🔗</span>
         {{ correction.page }}
-      </p>
+      </a>
 
       <div class="correction-card__actions">
         <button type="button">Edytuj</button>
@@ -66,6 +71,7 @@ defineProps({
 }
 
 .correction-card__content {
+  min-width: 0;
   padding-right: 32px;
 }
 
@@ -90,12 +96,18 @@ defineProps({
 
 .correction-card__page {
   display: flex;
+  width: fit-content;
   align-items: center;
   gap: 8px;
   margin: 8px 0 0;
   color: var(--color-brand);
   font-size: 14px;
   font-weight: 600;
+  text-decoration: none;
+}
+
+.correction-card__page:hover {
+  color: var(--color-brand-hover);
 }
 
 .correction-card__status {
@@ -141,6 +153,12 @@ defineProps({
   color: var(--color-brand);
 }
 
+.correction-card > .comments {
+  min-width: 0;
+  padding-left: 32px;
+  border-left: 1px solid var(--color-border);
+}
+
 @media (max-width: 767px) {
   .correction-card__header {
     align-items: flex-start;
@@ -154,6 +172,14 @@ defineProps({
 
   .correction-card__content {
     padding-right: 0;
+  }
+
+  .correction-card > .comments {
+    margin-top: 24px;
+    padding-top: 24px;
+    padding-left: 0;
+    border-top: 1px solid var(--color-border);
+    border-left: 0;
   }
 }
 </style>

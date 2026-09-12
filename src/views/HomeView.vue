@@ -174,7 +174,7 @@ const confirmDeleteComment = () => {
         </button>
       </header>
 
-      <div class="corrections-filters">
+      <div v-if="sortedCorrections.length" class="corrections-filters">
         <label for="page-filter"> Pokaż poprawki dla strony </label>
 
         <select id="page-filter" v-model="selectedPageId">
@@ -186,7 +186,7 @@ const confirmDeleteComment = () => {
         </select>
       </div>
 
-      <div v-if="!hasFilteredCorrections" class="filter-empty-state">
+      <div v-if="sortedCorrections.length && !hasFilteredCorrections" class="filter-empty-state">
         <h2>Brak poprawek</h2>
 
         <p>Dla wybranej strony nie dodano jeszcze żadnych poprawek.</p>

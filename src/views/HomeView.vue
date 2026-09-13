@@ -51,10 +51,6 @@ const statusFilteredCorrections = computed(() => {
   })
 })
 
-const visibleCorrections = computed(() => {
-  return filterCorrectionsByPage(statusFilteredCorrections.value)
-})
-
 const filterCorrectionsByPage = (corrections) => {
   if (selectedPageId.value === 'all') {
     return corrections
@@ -64,6 +60,10 @@ const filterCorrectionsByPage = (corrections) => {
     return correction.pageId === selectedPageId.value
   })
 }
+
+const visibleCorrections = computed(() => {
+  return filterCorrectionsByPage(statusFilteredCorrections.value)
+})
 
 const isCorrectionFormOpen = ref(false)
 
@@ -369,10 +369,6 @@ const confirmDeleteComment = () => {
   .project-board {
     min-height: calc(100vh - 32px);
     padding: 24px 20px;
-  }
-
-  h1 {
-    font-size: clamp(24px, 8vw, 32px);
   }
 
   .corrections-filters {

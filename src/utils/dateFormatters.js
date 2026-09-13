@@ -1,11 +1,3 @@
-export const formatDate = (date) => {
-  return new Intl.DateTimeFormat('pl-PL', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(date))
-}
-
 const dateTimeFormatter = new Intl.DateTimeFormat('pl-PL', {
   day: 'numeric',
   month: 'short',
@@ -15,5 +7,11 @@ const dateTimeFormatter = new Intl.DateTimeFormat('pl-PL', {
 })
 
 export const formatDateTime = (date) => {
-  return dateTimeFormatter.format(new Date(date))
+  const parsedDate = new Date(date)
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return 'Brak daty'
+  }
+
+  return dateTimeFormatter.format(parsedDate)
 }

@@ -17,9 +17,13 @@ export const useCorrections = () => {
   })
 
   const getNextCorrectionNumber = () => {
-    const correctionNumbers = corrections.value.map((correction) => {
-      return correction.number
-    })
+    const correctionNumbers = corrections.value
+      .map((correction) => {
+        return correction.number
+      })
+      .filter((number) => {
+        return Number.isFinite(number)
+      })
 
     return Math.max(0, ...correctionNumbers) + 1
   }
@@ -96,6 +100,10 @@ export const useCorrections = () => {
   const statusCounts = computed(() => {
     return corrections.value.reduce(
       (counts, correction) => {
+        if (!allowedStatuses.includes(correction.status)) {
+          return counts
+        }
+
         counts[correction.status] += 1
 
         return counts

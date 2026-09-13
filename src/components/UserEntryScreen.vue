@@ -75,9 +75,9 @@ const handleSubmit = () => {
 
 .user-entry__title {
   margin: 0;
-  color: #071936;
-  font-size: clamp(32px, 5vw, 44px);
+  color: var(--color-heading);
   line-height: 1.1;
+  font-size: clamp(24px, 3vw, 36px);
 }
 
 .user-entry__description {

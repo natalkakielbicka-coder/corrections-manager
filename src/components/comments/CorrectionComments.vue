@@ -39,12 +39,12 @@ const submitComment = () => {
     <div v-if="comments.length" class="comments__list">
       <article v-for="comment in comments" :key="comment.id" class="comment">
         <div class="comment__avatar" aria-hidden="true">
-          {{ comment.author.charAt(0) }}
+          {{ comment.author?.charAt(0).toUpperCase() || '?' }}
         </div>
 
         <div class="comment__content">
           <strong class="comment__author">
-            {{ comment.author }}
+            {{ comment.author || 'Nieznany użytkownik' }}
           </strong>
 
           <time class="comment__date" :datetime="comment.createdAt">
@@ -58,7 +58,7 @@ const submitComment = () => {
           <button
             class="comment__delete"
             type="button"
-            :aria-label="`Usuń komentarz użytkownika ${comment.author}`"
+            :aria-label="`Usuń komentarz użytkownika ${comment.author || 'nieznanego'}`"
             @click="
               emit('delete', {
                 correctionId,

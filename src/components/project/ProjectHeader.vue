@@ -181,6 +181,10 @@ h1 {
   .button {
     width: 100%;
   }
+
+  h1 {
+    font-size: clamp(24px, 8vw, 32px);
+  }
 }
 
 @media (max-width: 479px) {

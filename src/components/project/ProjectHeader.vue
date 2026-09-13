@@ -31,6 +31,11 @@ defineEmits(['add-correction'])
           <dd>{{ statusCounts.inProgress }}</dd>
         </div>
 
+        <div class="status-summary__item status-summary__item--review">
+          <dt>Do weryfikacji</dt>
+          <dd>{{ statusCounts.review }}</dd>
+        </div>
+
         <div class="status-summary__item status-summary__item--ready">
           <dt>Gotowe</dt>
           <dd>{{ statusCounts.ready }}</dd>
@@ -131,6 +136,11 @@ h1 {
 .status-summary__item--progress {
   background-color: #fef3c7;
   color: #92400e;
+}
+
+.status-summary__item--review {
+  background-color: #ede9fe;
+  color: #5b21b6;
 }
 
 .status-summary__item--ready {

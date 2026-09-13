@@ -72,7 +72,11 @@ export const useCorrections = () => {
     })
   }
 
+  const allowedStatuses = ['new', 'inProgress', 'review', 'ready']
+
   const updateCorrectionStatus = ({ correctionId, status }) => {
+    if (!allowedStatuses.includes(status)) return
+
     const correction = corrections.value.find((correctionItem) => {
       return correctionItem.id === correctionId
     })
@@ -110,6 +114,7 @@ export const useCorrections = () => {
       {
         new: 0,
         inProgress: 0,
+        review: 0,
         ready: 0,
       },
     )

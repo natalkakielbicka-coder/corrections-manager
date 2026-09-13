@@ -208,6 +208,11 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
   color: #92400e;
 }
 
+.status--review {
+  background-color: #ede9fe;
+  color: #5b21b6;
+}
+
 .status--ready {
   background-color: #d1fae5;
   color: #067647;

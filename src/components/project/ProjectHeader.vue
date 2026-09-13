@@ -49,9 +49,14 @@ defineEmits(['add-correction', 'change-user'])
 
     <div class="project-board__actions">
       <div class="project-board__user">
-        <span>
-          Pracujesz jako: <strong>{{ currentUserName }}</strong>
+        <span class="project-board__avatar" aria-hidden="true">
+          {{ currentUserName.charAt(0).toUpperCase() }}
         </span>
+
+        <div class="project-board__user-details">
+          <span>Pracujesz jako</span>
+          <strong>{{ currentUserName }}</strong>
+        </div>
 
         <button class="project-board__change-user" type="button" @click="$emit('change-user')">
           Zmień
@@ -78,7 +83,7 @@ defineEmits(['add-correction', 'change-user'])
 h1 {
   margin: 0;
   color: var(--color-heading);
-  font-size: clamp(32px, 4vw, 44px);
+  font-size: clamp(24px, 3vw, 36px);
   line-height: 1.1;
 }
 
@@ -168,17 +173,14 @@ h1 {
 
 .project-board__actions {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 14px;
+  align-items: center;
+  gap: 24px;
 }
 
 .project-board__user {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: var(--color-muted);
-  font-size: 12px;
+  gap: 10px;
 }
 
 .project-board__user strong {
@@ -186,12 +188,14 @@ h1 {
 }
 
 .project-board__change-user {
-  padding: 0;
+  padding: 2px 4px;
   border: 0;
   background: none;
   color: var(--color-brand);
   font: inherit;
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
   cursor: pointer;
 }
 
@@ -200,22 +204,60 @@ h1 {
   text-decoration: underline;
 }
 
+.project-board__avatar {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--color-brand-light);
+  color: var(--color-brand);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.project-board__user-details {
+  display: grid;
+  gap: 1px;
+  text-align: left;
+}
+
+.project-board__user-details span {
+  color: var(--color-muted);
+  font-size: 10px;
+}
+
+.project-board__user-details strong {
+  color: var(--color-heading);
+  font-size: 13px;
+}
+
 @media (max-width: 767px) {
   .project-board__header {
     flex-direction: column;
-  }
-
-  .button {
-    width: 100%;
+    align-items: stretch;
+    gap: 24px;
   }
 
   .project-board__actions {
     width: 100%;
-    align-items: stretch;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px;
   }
 
   .project-board__user {
-    justify-content: flex-end;
+    min-width: 0;
+  }
+
+  .project-board__actions > button:last-child {
+    width: 100%;
+  }
+
+  .button {
+    width: 100%;
   }
 }
 
@@ -227,6 +269,29 @@ h1 {
 
   .status-summary__item {
     justify-content: space-between;
+  }
+
+  .project-board__avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 12px;
+  }
+
+  .project-board__user-details span {
+    display: none;
+  }
+
+  .project-board__user-details strong {
+    display: block;
+    max-width: 120px;
+    overflow: hidden;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .project-board__change-user {
+    font-size: 10px;
   }
 }
 </style>

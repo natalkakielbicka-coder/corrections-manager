@@ -10,6 +10,8 @@ import DeleteCommentModal from '../components/comments/DeleteCommentModal.vue'
 import { useCorrections } from '../composables/useCorrections'
 import { usePages } from '../composables/usePages'
 import { useCurrentUser } from '../composables/useCurrentUser'
+import { useToast } from '../composables/useToast'
+import { correctionStatuses } from '../constants/correctionStatuses'
 import UserEntryScreen from '../components/UserEntryScreen.vue'
 
 const {
@@ -25,6 +27,8 @@ const {
 const { pages } = usePages()
 
 const { currentUserName, hasCurrentUser, setCurrentUser, clearCurrentUser } = useCurrentUser()
+
+const { showToast } = useToast()
 
 const selectedPageId = ref('all')
 
@@ -117,11 +121,14 @@ const closeCorrectionForm = () => {
 const handleCorrectionSubmit = (correctionData) => {
   if (correctionToEdit.value) {
     updateCorrection(correctionToEdit.value.id, correctionData)
+    showToast('Zapisano zmiany w poprawce')
   } else {
     addCorrection({
       ...correctionData,
       author: currentUserName.value,
     })
+
+    showToast('Dodano nową poprawkę')
   }
 
   closeCorrectionForm()
@@ -133,6 +140,21 @@ const handleAddComment = ({ correctionId, content }) => {
     content,
     author: currentUserName.value,
   })
+
+  showToast('Dodano komentarz')
+}
+
+const handleStatusUpdate = ({ correctionId, status }) => {
+  const statusData = correctionStatuses[status]
+
+  if (!statusData) return
+
+  updateCorrectionStatus({
+    correctionId,
+    status,
+  })
+
+  showToast(`Zmieniono status na „${statusData.label}”`)
 }
 
 const openDeleteModal = (correctionId) => {
@@ -150,6 +172,7 @@ const confirmDeleteCorrection = () => {
 
   deleteCorrection(correctionToDelete.value.id)
   closeDeleteModal()
+  showToast('Usunięto poprawkę', 'delete')
 }
 
 const openDeleteCommentModal = ({ correctionId, commentId }) => {
@@ -185,6 +208,7 @@ const confirmDeleteComment = () => {
   })
 
   closeDeleteCommentModal()
+  showToast('Usunięto komentarz', 'delete')
 }
 </script>
 
@@ -235,7 +259,7 @@ const confirmDeleteComment = () => {
           :corrections="visibleCorrections"
           :show-comments="selectedStatusTab !== 'ready'"
           @add-comment="handleAddComment"
-          @update-status="updateCorrectionStatus"
+          @update-status="handleStatusUpdate"
           @edit="openEditModal"
           @delete="openDeleteModal"
           @delete-comment="openDeleteCommentModal"

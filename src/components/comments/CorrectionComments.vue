@@ -43,31 +43,31 @@ const submitComment = () => {
         </div>
 
         <div class="comment__content">
-          <div class="comment__header">
-            <strong>{{ comment.author }}</strong>
+          <strong class="comment__author">
+            {{ comment.author }}
+          </strong>
 
-            <div class="comment__meta">
-              <time :datetime="comment.createdAt">
-                {{ formatDateTime(comment.createdAt) }}
-              </time>
+          <time class="comment__date" :datetime="comment.createdAt">
+            {{ formatDateTime(comment.createdAt) }}
+          </time>
 
-              <button
-                class="comment__delete"
-                type="button"
-                :aria-label="`Usuń komentarz użytkownika ${comment.author}`"
-                @click="
-                  emit('delete', {
-                    correctionId,
-                    commentId: comment.id,
-                  })
-                "
-              >
-                ×
-              </button>
-            </div>
-          </div>
+          <p class="comment__text">
+            {{ comment.content }}
+          </p>
 
-          <p>{{ comment.content }}</p>
+          <button
+            class="comment__delete"
+            type="button"
+            :aria-label="`Usuń komentarz użytkownika ${comment.author}`"
+            @click="
+              emit('delete', {
+                correctionId,
+                commentId: comment.id,
+              })
+            "
+          >
+            ×
+          </button>
         </div>
       </article>
     </div>
@@ -99,18 +99,19 @@ const submitComment = () => {
 
 .comments__list {
   display: grid;
-  gap: 16px;
+  gap: 14px;
   margin-top: 16px;
 }
 
 .comment {
   display: grid;
   grid-template-columns: 36px minmax(0, 1fr);
+  align-items: center;
   gap: 10px;
 }
 
 .comment + .comment {
-  padding-top: 16px;
+  padding-top: 14px;
   border-top: 1px solid var(--color-border);
 }
 
@@ -128,32 +129,59 @@ const submitComment = () => {
 }
 
 .comment__content {
+  display: grid;
+  grid-template-columns: 120px 120px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 12px;
   min-width: 0;
 }
 
-.comment__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.comment__header strong {
+.comment__author {
+  grid-column: 1;
+  overflow: hidden;
   color: var(--color-heading);
   font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.comment__header time {
-  flex-shrink: 0;
+.comment__date {
+  grid-column: 2;
   color: var(--color-muted);
   font-size: 11px;
+  white-space: nowrap;
 }
 
-.comment__content p {
-  margin: 3px 0 0;
+.comment__text {
+  grid-column: 3;
+  min-width: 0;
+  margin: 0;
   color: var(--color-text);
   font-size: 13px;
   line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.comment__delete {
+  display: flex;
+  grid-column: 4;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.comment__delete:hover {
+  background-color: #fee2e2;
+  color: #b42318;
 }
 
 .comments__empty {
@@ -176,6 +204,7 @@ const submitComment = () => {
   border: 1px solid var(--color-border);
   border-radius: 6px;
   color: var(--color-heading);
+  font: inherit;
   font-size: 13px;
   outline: none;
 }
@@ -197,8 +226,10 @@ const submitComment = () => {
   border-radius: 6px;
   background-color: var(--color-brand);
   color: #ffffff;
+  font: inherit;
   font-size: 13px;
   font-weight: 700;
+  cursor: pointer;
 }
 
 .comments__form button:hover {
@@ -216,42 +247,55 @@ const submitComment = () => {
   border: 0;
 }
 
-.comment__meta {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 8px;
-}
+@media (max-width: 767px) {
+  .comment {
+    align-items: start;
+  }
 
-.comment__delete {
-  display: flex;
-  width: 24px;
-  height: 24px;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: none;
-  color: var(--color-muted);
-  font-size: 18px;
-  line-height: 1;
-}
+  .comment__content {
+    grid-template-columns: minmax(0, 1fr) 24px;
+    gap: 3px 8px;
+  }
 
-.comment__delete:hover {
-  background-color: #fee2e2;
-  color: #b42318;
+  .comment__author {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .comment__delete {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .comment__date {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .comment__text {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin-top: 5px;
+  }
 }
 
 @media (max-width: 479px) {
-  .comment__header {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 2px;
+  .comment {
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .comment__avatar {
+    width: 32px;
+    height: 32px;
   }
 
   .comments__form {
     flex-direction: column;
+  }
+
+  .comments__form button {
+    width: 100%;
   }
 }
 </style>

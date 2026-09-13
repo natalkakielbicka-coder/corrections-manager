@@ -29,6 +29,8 @@ const selectedPage = computed(() => {
 
 const isImagePreviewOpen = ref(false)
 
+const isCommentsOpen = ref(false)
+
 const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'delete-comment'])
 </script>
 
@@ -95,6 +97,22 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
         <img :src="correction.imageUrl" :alt="`Załącznik do poprawki: ${correction.title}`" />
       </button>
 
+      <button
+        v-if="showComments"
+        class="correction-card__comments-toggle"
+        type="button"
+        :aria-expanded="isCommentsOpen"
+        @click="isCommentsOpen = !isCommentsOpen"
+      >
+        <span aria-hidden="true">💬</span>
+
+        Komentarze ({{ correction.comments.length }})
+
+        <span aria-hidden="true">
+          {{ isCommentsOpen ? '▲' : '▼' }}
+        </span>
+      </button>
+
       <div class="correction-card__actions">
         <button type="button" @click="emit('edit', correction.id)">Edytuj</button>
 
@@ -110,13 +128,14 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
       </div>
     </div>
 
-    <CorrectionComments
-      v-if="showComments"
-      :comments="correction.comments"
-      :correction-id="correction.id"
-      @add="emit('add-comment', $event)"
-      @delete="emit('delete-comment', $event)"
-    />
+    <div v-if="showComments && isCommentsOpen" class="correction-card__comments-panel">
+      <CorrectionComments
+        :comments="correction.comments"
+        :correction-id="correction.id"
+        @add="emit('add-comment', $event)"
+        @delete="emit('delete-comment', $event)"
+      />
+    </div>
 
     <ImageLightbox
       v-if="isImagePreviewOpen"
@@ -130,7 +149,7 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
 <style scoped>
 .correction-card {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+  grid-template-columns: 1fr;
   padding-block: 24px;
   border-bottom: 1px solid var(--color-border);
 }
@@ -141,7 +160,6 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
 
 .correction-card__content {
   min-width: 0;
-  padding-right: 28px;
 }
 
 .correction-card__header {
@@ -293,25 +311,44 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
   color: #96a19f;
 }
 
+.correction-card__comments-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin: 16px 0 0 auto;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: var(--color-heading);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.correction-card__comments-toggle:hover {
+  border-color: var(--color-brand);
+  background-color: rgba(7, 153, 138, 0.05);
+  color: var(--color-brand);
+}
+
+.correction-card__comments-panel {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background-color: #f8faf9;
+}
+
 @media (max-width: 991px) {
   .correction-card__header {
     align-items: flex-start;
-  }
-
-  .correction-card {
-    grid-template-columns: 1fr;
-  }
-
-  .correction-card__content {
-    padding-right: 0;
-  }
-
-  .correction-card > .comments {
-    margin-top: 24px;
-    padding-top: 24px;
-    padding-left: 0;
-    border-top: 1px solid var(--color-border);
-    border-left: 0;
   }
 
   .correction-card__status {
@@ -327,6 +364,11 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
 
   .correction-card__status {
     align-self: flex-end;
+  }
+
+  .correction-card__comments-toggle {
+    justify-content: center;
+    width: 100%;
   }
 }
 </style>

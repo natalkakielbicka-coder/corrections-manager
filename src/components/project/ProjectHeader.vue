@@ -1,9 +1,5 @@
 <script setup>
 defineProps({
-  statusCounts: {
-    type: Object,
-    required: true,
-  },
   currentUserName: {
     type: String,
     required: true,
@@ -23,28 +19,6 @@ defineEmits(['add-correction', 'change-user'])
       <p class="project-board__description">
         Tu wspólnie zapisujemy i omawiamy poprawki do projektu.
       </p>
-
-      <dl class="status-summary">
-        <div class="status-summary__item status-summary__item--new">
-          <dt>Nowe</dt>
-          <dd>{{ statusCounts.new }}</dd>
-        </div>
-
-        <div class="status-summary__item status-summary__item--progress">
-          <dt>W trakcie</dt>
-          <dd>{{ statusCounts.inProgress }}</dd>
-        </div>
-
-        <div class="status-summary__item status-summary__item--review">
-          <dt>Do weryfikacji</dt>
-          <dd>{{ statusCounts.review }}</dd>
-        </div>
-
-        <div class="status-summary__item status-summary__item--ready">
-          <dt>Gotowe</dt>
-          <dd>{{ statusCounts.ready }}</dd>
-        </div>
-      </dl>
     </div>
 
     <div class="project-board__actions">
@@ -117,58 +91,6 @@ h1 {
 
 .button:hover {
   background-color: var(--color-brand-hover);
-}
-
-.status-summary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 20px 0 0;
-}
-
-.status-summary__item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.status-summary__item dt,
-.status-summary__item dd {
-  margin: 0;
-}
-
-.status-summary__item dd {
-  display: flex;
-  min-width: 22px;
-  height: 22px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.75);
-}
-
-.status-summary__item--new {
-  background-color: #fee2e2;
-  color: #b42318;
-}
-
-.status-summary__item--progress {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.status-summary__item--review {
-  background-color: #ede9fe;
-  color: #5b21b6;
-}
-
-.status-summary__item--ready {
-  background-color: #d1fae5;
-  color: #067647;
 }
 
 .project-board__actions {
@@ -262,15 +184,6 @@ h1 {
 }
 
 @media (max-width: 479px) {
-  .status-summary {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  .status-summary__item {
-    justify-content: space-between;
-  }
-
   .project-board__avatar {
     width: 36px;
     height: 36px;

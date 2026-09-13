@@ -54,7 +54,6 @@ const tabs = [
   width: 100%;
   gap: 36px;
   overflow-x: auto;
-  border-bottom: 1px solid var(--color-border);
   scrollbar-width: none;
 }
 

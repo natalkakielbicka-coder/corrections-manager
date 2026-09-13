@@ -93,18 +93,6 @@ export const useCorrections = () => {
     })
   }
 
-  const activeCorrections = computed(() => {
-    return sortedCorrections.value.filter((correction) => {
-      return correction.status !== 'ready'
-    })
-  })
-
-  const completedCorrections = computed(() => {
-    return sortedCorrections.value.filter((correction) => {
-      return correction.status === 'ready'
-    })
-  })
-
   const statusCounts = computed(() => {
     return corrections.value.reduce(
       (counts, correction) => {
@@ -130,8 +118,6 @@ export const useCorrections = () => {
     updateCorrectionStatus,
     deleteCorrection,
     updateCorrection,
-    activeCorrections,
-    completedCorrections,
     statusCounts,
   }
 }

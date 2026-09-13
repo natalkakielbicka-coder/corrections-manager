@@ -172,28 +172,29 @@ const confirmDeleteComment = () => {
   <main v-else class="page">
     <section class="project-board">
       <ProjectHeader
-        :status-counts="statusCounts"
         :current-user-name="currentUserName"
         @add-correction="openCorrectionForm"
         @change-user="clearCurrentUser"
       />
 
-      <CorrectionsTabs
-        :active-tab="selectedStatusTab"
-        :counts="tabCounts"
-        @change="selectedStatusTab = $event"
-      />
+      <div class="corrections-toolbar">
+        <CorrectionsTabs
+          :active-tab="selectedStatusTab"
+          :counts="tabCounts"
+          @change="selectedStatusTab = $event"
+        />
 
-      <div v-if="sortedCorrections.length" class="corrections-filters">
-        <label for="page-filter"> Pokaż poprawki dla strony </label>
+        <div v-if="sortedCorrections.length" class="corrections-filters">
+          <label for="page-filter"> Pokaż poprawki dla strony </label>
 
-        <select id="page-filter" v-model="selectedPageId">
-          <option value="all">Wszystkie strony</option>
+          <select id="page-filter" v-model="selectedPageId">
+            <option value="all">Wszystkie strony</option>
 
-          <option v-for="page in pages" :key="page.id" :value="page.id">
-            {{ page.title }}
-          </option>
-        </select>
+            <option v-for="page in pages" :key="page.id" :value="page.id">
+              {{ page.title }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <div v-if="sortedCorrections.length && !visibleCorrections.length" class="filter-empty-state">
@@ -262,110 +263,12 @@ const confirmDeleteComment = () => {
   box-shadow: 0 16px 50px rgba(7, 25, 54, 0.06);
 }
 
-.corrections-section {
-  margin-top: 32px;
-}
-
-.corrections-section__title {
-  margin: 0 0 8px;
-  color: var(--color-heading);
-  font-size: 20px;
-}
-
-.corrections-section--completed {
-  margin-top: 40px;
-  padding: 24px 28px;
-  border: 1px solid #b7e4cd;
-  border-radius: 10px;
-  background-color: #f0faf5;
-}
-
-.no-active-corrections {
-  margin: 48px 0;
-  color: var(--color-muted);
-  text-align: center;
-}
-
-.completed-section__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 12px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #b7e4cd;
-}
-
-.completed-section__header .corrections-section__title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 0;
-  color: #067647;
-}
-
-.completed-section__count {
-  display: flex;
-  min-width: 30px;
-  height: 30px;
-  align-items: center;
-  justify-content: center;
-  padding-inline: 8px;
-  border-radius: 999px;
-  background-color: #d1fae5;
-  color: #067647;
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.active-section__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 12px;
-  padding: 14px 18px;
-  border-left: 4px solid var(--color-brand);
-  border-radius: 8px;
-  background-color: var(--color-brand-light);
-}
-
-.active-section__header .corrections-section__title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  color: var(--color-heading);
-}
-
-.active-section__dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background-color: var(--color-brand);
-}
-
-.active-section__count {
-  display: flex;
-  min-width: 30px;
-  height: 30px;
-  align-items: center;
-  justify-content: center;
-  padding-inline: 8px;
-  border-radius: 999px;
-  background-color: var(--color-surface);
-  color: var(--color-brand);
-  font-size: 13px;
-  font-weight: 800;
-}
-
 .corrections-filters {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
-  justify-content: flex-end;
   gap: 12px;
-  margin-top: 24px;
-  margin-bottom: 24px;
+  margin-bottom: 0;
 }
 
 .corrections-filters label {
@@ -423,6 +326,19 @@ const confirmDeleteComment = () => {
   background-color: var(--color-brand-light);
 }
 
+.corrections-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.corrections-toolbar > :first-child {
+  min-width: 0;
+  flex: 1;
+}
+
 @media (max-width: 991px) {
   .page {
     padding: 24px;
@@ -431,6 +347,17 @@ const confirmDeleteComment = () => {
   .project-board {
     min-height: calc(100vh - 48px);
     padding: 32px;
+  }
+
+  .corrections-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .corrections-filters {
+    justify-content: space-between;
+    padding-bottom: 8px;
   }
 }
 
@@ -444,27 +371,16 @@ const confirmDeleteComment = () => {
     padding: 24px 20px;
   }
 
-  .corrections-section--completed {
-    margin-top: 28px;
-    padding: 18px;
-  }
-
   h1 {
     font-size: clamp(24px, 8vw, 32px);
-  }
-
-  .corrections-section__title {
-    font-size: 18px;
-  }
-
-  .active-section__header {
-    padding: 12px 14px;
   }
 
   .corrections-filters {
     align-items: stretch;
     flex-direction: column;
     gap: 8px;
+    width: 100%;
+    margin-bottom: 0;
   }
 
   .corrections-filters select {

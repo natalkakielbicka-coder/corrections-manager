@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 
 defineProps({
   label: {
@@ -10,6 +10,9 @@ defineProps({
 
 const emit = defineEmits(['close'])
 
+const modalRef = ref(null)
+let previouslyFocusedElement = null
+
 const handleKeydown = (event) => {
   if (event.key === 'Escape') {
     emit('close')
@@ -19,6 +22,12 @@ const handleKeydown = (event) => {
 let previousBodyOverflow = ''
 
 onMounted(() => {
+  previouslyFocusedElement = document.activeElement
+
+  nextTick(() => {
+    modalRef.value?.focus()
+  })
+
   previousBodyOverflow = document.body.style.overflow
   document.body.style.overflow = 'hidden'
 
@@ -29,6 +38,8 @@ onUnmounted(() => {
   document.body.style.overflow = previousBodyOverflow
 
   document.removeEventListener('keydown', handleKeydown)
+
+  previouslyFocusedElement?.focus()
 })
 </script>
 
@@ -36,6 +47,8 @@ onUnmounted(() => {
   <div
     class="modal"
     role="dialog"
+    ref="modalRef"
+    tabindex="-1"
     aria-modal="true"
     :aria-label="label"
     @click.self="emit('close')"

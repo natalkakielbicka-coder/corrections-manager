@@ -32,6 +32,8 @@ const { showToast } = useToast()
 
 const selectedPageId = ref('all')
 
+const showOnlyNew = ref(false)
+
 const selectedStatusTab = ref('active')
 
 const tabCounts = computed(() => {
@@ -88,7 +90,15 @@ const filterCorrectionsByPage = (corrections) => {
 }
 
 const visibleCorrections = computed(() => {
-  return filterCorrectionsByPage(statusFilteredCorrections.value)
+  const pageFilteredCorrections = filterCorrectionsByPage(statusFilteredCorrections.value)
+
+  if (!showOnlyNew.value || selectedStatusTab.value !== 'active') {
+    return pageFilteredCorrections
+  }
+
+  return pageFilteredCorrections.filter((correction) => {
+    return correction.isNew
+  })
 })
 
 const isCorrectionFormOpen = ref(false)
@@ -231,6 +241,12 @@ const confirmDeleteComment = () => {
         />
 
         <div v-if="sortedCorrections.length" class="corrections-filters">
+          <label v-if="selectedStatusTab === 'active'" class="corrections-filters__new">
+            <input v-model="showOnlyNew" type="checkbox" />
+
+            <span>Tylko nowe</span>
+          </label>
+
           <label for="page-filter"> Pokaż poprawki dla strony </label>
 
           <select id="page-filter" v-model="selectedPageId">
@@ -246,11 +262,25 @@ const confirmDeleteComment = () => {
       <div v-if="sortedCorrections.length && !visibleCorrections.length" class="filter-empty-state">
         <h2>Brak poprawek</h2>
 
-        <p>Brak poprawek dla wybranego statusu i strony.</p>
+        <p v-if="showOnlyNew && selectedStatusTab === 'active'">
+          Nie ma nowych poprawek spełniających wybrane kryteria.
+        </p>
 
-        <button v-if="selectedPageId !== 'all'" type="button" @click="selectedPageId = 'all'">
-          Pokaż wszystkie strony
-        </button>
+        <p v-else>Brak poprawek dla wybranego statusu i strony.</p>
+
+        <div v-if="showOnlyNew || selectedPageId !== 'all'" class="filter-empty-state__actions">
+          <button
+            v-if="showOnlyNew && selectedStatusTab === 'active'"
+            type="button"
+            @click="showOnlyNew = false"
+          >
+            Pokaż wszystkie aktywne
+          </button>
+
+          <button v-if="selectedPageId !== 'all'" type="button" @click="selectedPageId = 'all'">
+            Pokaż wszystkie strony
+          </button>
+        </div>
       </div>
 
       <template v-if="sortedCorrections.length">
@@ -323,6 +353,22 @@ const confirmDeleteComment = () => {
   font-weight: 600;
 }
 
+.corrections-filters .corrections-filters__new {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+}
+
+.corrections-filters__new input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--color-brand);
+  cursor: pointer;
+}
+
 .corrections-filters select {
   min-width: 220px;
   min-height: 42px;
@@ -359,7 +405,6 @@ const confirmDeleteComment = () => {
 
 .filter-empty-state button {
   min-height: 44px;
-  margin-top: 24px;
   padding: 10px 18px;
   border: 1px solid var(--color-brand);
   border-radius: 6px;
@@ -370,6 +415,14 @@ const confirmDeleteComment = () => {
 
 .filter-empty-state button:hover {
   background-color: var(--color-brand-light);
+}
+
+.filter-empty-state__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
 }
 
 .corrections-toolbar {

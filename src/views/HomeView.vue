@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import ProjectHeader from '../components/project/ProjectHeader.vue'
+import CorrectionsTabs from '../components/corrections/CorrectionsTabs.vue'
 import CorrectionsList from '../components/corrections/CorrectionsList.vue'
 import EmptyCorrectionsState from '../components/corrections/EmptyCorrectionsState.vue'
 import CorrectionFormModal from '../components/corrections/CorrectionFormModal.vue'
@@ -18,8 +19,6 @@ const {
   updateCorrectionStatus,
   deleteCorrection,
   updateCorrection,
-  activeCorrections,
-  completedCorrections,
   statusCounts,
   deleteComment,
 } = useCorrections()
@@ -30,6 +29,32 @@ const { currentUserName, hasCurrentUser, setCurrentUser, clearCurrentUser } = us
 
 const selectedPageId = ref('all')
 
+const selectedStatusTab = ref('active')
+
+const tabCounts = computed(() => {
+  return {
+    active: statusCounts.value.new + statusCounts.value.inProgress,
+    review: statusCounts.value.review,
+    ready: statusCounts.value.ready,
+  }
+})
+
+const statusFilteredCorrections = computed(() => {
+  if (selectedStatusTab.value === 'active') {
+    return sortedCorrections.value.filter((correction) => {
+      return correction.status === 'new' || correction.status === 'inProgress'
+    })
+  }
+
+  return sortedCorrections.value.filter((correction) => {
+    return correction.status === selectedStatusTab.value
+  })
+})
+
+const visibleCorrections = computed(() => {
+  return filterCorrectionsByPage(statusFilteredCorrections.value)
+})
+
 const filterCorrectionsByPage = (corrections) => {
   if (selectedPageId.value === 'all') {
     return corrections
@@ -39,18 +64,6 @@ const filterCorrectionsByPage = (corrections) => {
     return correction.pageId === selectedPageId.value
   })
 }
-
-const filteredActiveCorrections = computed(() => {
-  return filterCorrectionsByPage(activeCorrections.value)
-})
-
-const filteredCompletedCorrections = computed(() => {
-  return filterCorrectionsByPage(completedCorrections.value)
-})
-
-const hasFilteredCorrections = computed(() => {
-  return filteredActiveCorrections.value.length > 0 || filteredCompletedCorrections.value.length > 0
-})
 
 const isCorrectionFormOpen = ref(false)
 
@@ -155,13 +168,20 @@ const confirmDeleteComment = () => {
 
 <template>
   <UserEntryScreen v-if="!hasCurrentUser" @submit="setCurrentUser" />
+
   <main v-else class="page">
     <section class="project-board">
       <ProjectHeader
         :status-counts="statusCounts"
-        @add-correction="openCorrectionForm"
         :current-user-name="currentUserName"
+        @add-correction="openCorrectionForm"
         @change-user="clearCurrentUser"
+      />
+
+      <CorrectionsTabs
+        :active-tab="selectedStatusTab"
+        :counts="tabCounts"
+        @change="selectedStatusTab = $event"
       />
 
       <div v-if="sortedCorrections.length" class="corrections-filters">
@@ -176,65 +196,27 @@ const confirmDeleteComment = () => {
         </select>
       </div>
 
-      <div v-if="sortedCorrections.length && !hasFilteredCorrections" class="filter-empty-state">
+      <div v-if="sortedCorrections.length && !visibleCorrections.length" class="filter-empty-state">
         <h2>Brak poprawek</h2>
 
-        <p>Dla wybranej strony nie dodano jeszcze żadnych poprawek.</p>
+        <p>Brak poprawek dla wybranego statusu i strony.</p>
 
-        <button type="button" @click="selectedPageId = 'all'">Pokaż wszystkie strony</button>
+        <button v-if="selectedPageId !== 'all'" type="button" @click="selectedPageId = 'all'">
+          Pokaż wszystkie strony
+        </button>
       </div>
 
       <template v-if="sortedCorrections.length">
-        <section v-if="filteredActiveCorrections.length" class="corrections-section">
-          <div class="active-section__header">
-            <h2 class="corrections-section__title">
-              <span class="active-section__dot" aria-hidden="true"></span>
-              Aktywne
-            </h2>
-
-            <span class="active-section__count">
-              {{ filteredActiveCorrections.length }}
-            </span>
-          </div>
-
-          <CorrectionsList
-            :corrections="filteredActiveCorrections"
-            @add-comment="handleAddComment"
-            @update-status="updateCorrectionStatus"
-            @edit="openEditModal"
-            @delete="openDeleteModal"
-            @delete-comment="openDeleteCommentModal"
-          />
-        </section>
-
-        <p v-else-if="hasFilteredCorrections" class="no-active-corrections">
-          Brak aktywnych poprawek dla wybranej strony.
-        </p>
-
-        <section
-          v-if="filteredCompletedCorrections.length"
-          class="corrections-section corrections-section--completed"
-        >
-          <div class="completed-section__header">
-            <h2 class="corrections-section__title">
-              <span aria-hidden="true">✓</span>
-              Gotowe
-            </h2>
-
-            <span class="completed-section__count">
-              {{ filteredCompletedCorrections.length }}
-            </span>
-          </div>
-
-          <CorrectionsList
-            :corrections="filteredCompletedCorrections"
-            @add-comment="handleAddComment"
-            :show-comments="false"
-            @update-status="updateCorrectionStatus"
-            @edit="openEditModal"
-            @delete="openDeleteModal"
-          />
-        </section>
+        <CorrectionsList
+          v-if="visibleCorrections.length"
+          :corrections="visibleCorrections"
+          :show-comments="selectedStatusTab !== 'ready'"
+          @add-comment="handleAddComment"
+          @update-status="updateCorrectionStatus"
+          @edit="openEditModal"
+          @delete="openDeleteModal"
+          @delete-comment="openDeleteCommentModal"
+        />
       </template>
 
       <EmptyCorrectionsState v-else @add="openCorrectionForm" />

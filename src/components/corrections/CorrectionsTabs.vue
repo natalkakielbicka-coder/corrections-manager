@@ -29,15 +29,14 @@ const tabs = [
 </script>
 
 <template>
-  <div class="corrections-tabs" role="tablist" aria-label="Statusy poprawek">
+  <div class="corrections-tabs" role="group" aria-label="Filtruj poprawki według statusu">
     <button
       v-for="tab in tabs"
       :key="tab.value"
       class="corrections-tabs__button"
       :class="{ 'corrections-tabs__button--active': activeTab === tab.value }"
       type="button"
-      role="tab"
-      :aria-selected="activeTab === tab.value"
+      :aria-pressed="activeTab === tab.value"
       @click="emit('change', tab.value)"
     >
       {{ tab.label }}

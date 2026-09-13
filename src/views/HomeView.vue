@@ -19,7 +19,6 @@ const {
   updateCorrectionStatus,
   deleteCorrection,
   updateCorrection,
-  statusCounts,
   deleteComment,
 } = useCorrections()
 
@@ -32,11 +31,34 @@ const selectedPageId = ref('all')
 const selectedStatusTab = ref('active')
 
 const tabCounts = computed(() => {
-  return {
-    active: statusCounts.value.new + statusCounts.value.inProgress,
-    review: statusCounts.value.review,
-    ready: statusCounts.value.ready,
+  const correctionsForSelectedPage =
+    selectedPageId.value === 'all'
+      ? sortedCorrections.value
+      : sortedCorrections.value.filter((correction) => {
+          return correction.pageId === selectedPageId.value
+        })
+
+  const counts = {
+    active: 0,
+    review: 0,
+    ready: 0,
   }
+
+  correctionsForSelectedPage.forEach((correction) => {
+    if (correction.status === 'new' || correction.status === 'inProgress') {
+      counts.active += 1
+    }
+
+    if (correction.status === 'review') {
+      counts.review += 1
+    }
+
+    if (correction.status === 'ready') {
+      counts.ready += 1
+    }
+  })
+
+  return counts
 })
 
 const statusFilteredCorrections = computed(() => {

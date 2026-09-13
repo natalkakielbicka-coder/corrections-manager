@@ -36,6 +36,8 @@ const handleSubmit = () => {
           name="user-name"
           placeholder="Np. Natalia"
           autocomplete="name"
+          autofocus
+          maxlength="40"
           required
         />
 

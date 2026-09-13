@@ -4,9 +4,13 @@ defineProps({
     type: Object,
     required: true,
   },
+  currentUserName: {
+    type: String,
+    required: true,
+  },
 })
 
-defineEmits(['add-correction'])
+defineEmits(['add-correction', 'change-user'])
 </script>
 
 <template>
@@ -43,7 +47,21 @@ defineEmits(['add-correction'])
       </dl>
     </div>
 
-    <button class="button" type="button" @click="$emit('add-correction')">+ Dodaj poprawkę</button>
+    <div class="project-board__actions">
+      <div class="project-board__user">
+        <span>
+          Pracujesz jako: <strong>{{ currentUserName }}</strong>
+        </span>
+
+        <button class="project-board__change-user" type="button" @click="$emit('change-user')">
+          Zmień
+        </button>
+      </div>
+
+      <button class="button" type="button" @click="$emit('add-correction')">
+        + Dodaj poprawkę
+      </button>
+    </div>
   </header>
 </template>
 
@@ -148,6 +166,40 @@ h1 {
   color: #067647;
 }
 
+.project-board__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.project-board__user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+.project-board__user strong {
+  color: var(--color-heading);
+}
+
+.project-board__change-user {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-brand);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.project-board__change-user:hover {
+  color: var(--color-brand-hover);
+  text-decoration: underline;
+}
+
 @media (max-width: 767px) {
   .project-board__header {
     flex-direction: column;
@@ -155,6 +207,15 @@ h1 {
 
   .button {
     width: 100%;
+  }
+
+  .project-board__actions {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .project-board__user {
+    justify-content: flex-end;
   }
 }
 

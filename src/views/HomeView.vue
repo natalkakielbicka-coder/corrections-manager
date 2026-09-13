@@ -26,7 +26,7 @@ const {
 
 const { pages } = usePages()
 
-const { currentUserName, hasCurrentUser, setCurrentUser } = useCurrentUser()
+const { currentUserName, hasCurrentUser, setCurrentUser, clearCurrentUser } = useCurrentUser()
 
 const selectedPageId = ref('all')
 
@@ -157,7 +157,12 @@ const confirmDeleteComment = () => {
   <UserEntryScreen v-if="!hasCurrentUser" @submit="setCurrentUser" />
   <main v-else class="page">
     <section class="project-board">
-      <ProjectHeader :status-counts="statusCounts" @add-correction="openCorrectionForm" />
+      <ProjectHeader
+        :status-counts="statusCounts"
+        @add-correction="openCorrectionForm"
+        :current-user-name="currentUserName"
+        @change-user="clearCurrentUser"
+      />
 
       <div v-if="sortedCorrections.length" class="corrections-filters">
         <label for="page-filter"> Pokaż poprawki dla strony </label>

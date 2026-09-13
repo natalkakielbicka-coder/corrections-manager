@@ -164,7 +164,7 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
 .correction-card {
   display: grid;
   grid-template-columns: 1fr;
-  padding: 20px;
+  padding: 14px 18px;
   border: 1px solid var(--color-border);
   border-left-width: 4px;
   border-radius: 10px;
@@ -326,7 +326,7 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  margin-top: 16px;
+  margin-top: 10px;
 }
 
 .correction-card__actions {
@@ -352,6 +352,10 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
 
 .correction-card__actions .correction-card__delete:hover {
   color: #b42318;
+}
+
+.correction-card--without-comments {
+  background-color: #fbfcfc;
 }
 
 .correction-card__comments-toggle {
@@ -417,7 +421,8 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
   }
 
   .correction-card__status {
-    align-self: flex-end;
+    width: 100%;
+    align-self: stretch;
   }
 
   .correction-card__footer {

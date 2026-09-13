@@ -365,6 +365,7 @@ const confirmDeleteComment = () => {
   justify-content: flex-end;
   gap: 12px;
   margin-top: 24px;
+  margin-bottom: 24px;
 }
 
 .corrections-filters label {
@@ -463,10 +464,15 @@ const confirmDeleteComment = () => {
   .corrections-filters {
     align-items: stretch;
     flex-direction: column;
+    gap: 8px;
   }
 
   .corrections-filters select {
     width: 100%;
+  }
+
+  .corrections-filters label {
+    font-size: 13px;
   }
 }
 </style>

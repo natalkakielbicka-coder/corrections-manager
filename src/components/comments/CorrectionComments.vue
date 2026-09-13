@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { formatDate } from '../../utils/dateFormatters'
+import { formatDateTime } from '../../utils/dateFormatters'
 
 const props = defineProps({
   comments: {
@@ -48,7 +48,7 @@ const submitComment = () => {
 
             <div class="comment__meta">
               <time :datetime="comment.createdAt">
-                {{ formatDate(comment.createdAt) }}
+                {{ formatDateTime(comment.createdAt) }}
               </time>
 
               <button

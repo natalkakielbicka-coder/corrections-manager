@@ -4,6 +4,7 @@ import { usePages } from '../../composables/usePages'
 import { correctionStatuses } from '../../constants/correctionStatuses'
 import CorrectionComments from '../comments/CorrectionComments.vue'
 import ImageLightbox from '../ui/ImageLightbox.vue'
+import { formatDateTime } from '../../utils/dateFormatters'
 
 const props = defineProps({
   correction: {
@@ -61,9 +62,13 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
         </select>
       </div>
 
-      <p v-if="correction.author" class="correction-card__author">
-        Zgłaszający: {{ correction.author }}
-      </p>
+      <div class="correction-card__meta">
+        <span v-if="correction.author"> Zgłaszający: {{ correction.author }} </span>
+
+        <time v-if="correction.createdAt" :datetime="correction.createdAt">
+          {{ formatDateTime(correction.createdAt) }}
+        </time>
+      </div>
 
       <p class="correction-card__description">
         {{ correction.description }}
@@ -269,11 +274,18 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
   padding-right: 0;
 }
 
-.correction-card__author {
-  margin: 6px 0 0;
-  color: #6b7b78;
-  font-size: 13px;
-  font-weight: 600;
+.correction-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-top: 6px;
+  color: #7b8986;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.correction-card__meta time {
+  color: #96a19f;
 }
 
 @media (max-width: 991px) {

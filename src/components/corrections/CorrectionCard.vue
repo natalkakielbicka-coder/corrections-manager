@@ -42,7 +42,7 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
         </h2>
         <select
           class="correction-card__status"
-          :class="correctionStatuses[correction.status].className"
+          :class="correctionStatuses[correction.status]?.className"
           :value="correction.status"
           aria-label="Zmień status poprawki"
           @change="

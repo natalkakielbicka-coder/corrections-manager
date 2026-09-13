@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import { initialCorrections } from '../data/corrections'
+import { correctionStatuses } from '../constants/correctionStatuses'
 
 export const useCorrections = () => {
   const corrections = ref(structuredClone(initialCorrections))
@@ -72,7 +73,7 @@ export const useCorrections = () => {
     })
   }
 
-  const allowedStatuses = ['new', 'inProgress', 'review', 'ready']
+  const allowedStatuses = Object.keys(correctionStatuses)
 
   const updateCorrectionStatus = ({ correctionId, status }) => {
     if (!allowedStatuses.includes(status)) return

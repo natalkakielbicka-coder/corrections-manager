@@ -49,7 +49,7 @@ const tabCounts = computed(() => {
   }
 
   correctionsForSelectedPage.forEach((correction) => {
-    if (correction.status === 'new' || correction.status === 'inProgress') {
+    if (correction.status === 'inProgress') {
       counts.active += 1
     }
 
@@ -68,7 +68,7 @@ const tabCounts = computed(() => {
 const statusFilteredCorrections = computed(() => {
   if (selectedStatusTab.value === 'active') {
     return sortedCorrections.value.filter((correction) => {
-      return correction.status === 'new' || correction.status === 'inProgress'
+      return correction.status === 'inProgress'
     })
   }
 

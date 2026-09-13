@@ -22,7 +22,7 @@ const formData = reactive({
   title: props.correction?.title ?? '',
   description: props.correction?.description ?? '',
   pageId: props.correction?.pageId ?? '',
-  status: props.correction?.status ?? 'new',
+  status: props.correction?.status ?? 'inProgress',
   imageUrl: props.correction?.imageUrl ?? '',
 })
 

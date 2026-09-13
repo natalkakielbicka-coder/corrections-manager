@@ -58,8 +58,11 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
         <div class="correction-card__details">
           <div class="correction-card__header">
             <h2 class="correction-card__title">
-              <span>{{ number }}.</span>
+              <span class="correction-card__number">{{ number }}.</span>
+
               {{ correction.title }}
+
+              <span v-if="correction.isNew" class="correction-card__new-badge"> Nowa </span>
             </h2>
 
             <select
@@ -175,10 +178,6 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
   margin-top: 12px;
 }
 
-.correction-card[data-status='new'] {
-  border-left-color: #f87171;
-}
-
 .correction-card[data-status='inProgress'] {
   border-left-color: #fbbf24;
 }
@@ -219,8 +218,22 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
   line-height: 1.4;
 }
 
-.correction-card__title span {
+.correction-card__number {
   margin-right: 4px;
+}
+
+.correction-card__new-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background-color: #fee2e2;
+  color: #b42318;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.2;
+  vertical-align: middle;
 }
 
 .correction-card__meta {
@@ -299,11 +312,6 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
   cursor: pointer;
   outline: none;
   appearance: none;
-}
-
-.status--new {
-  background-color: #fee2e2;
-  color: #b42318;
 }
 
 .status--in-progress {

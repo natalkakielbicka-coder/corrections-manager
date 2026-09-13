@@ -35,6 +35,7 @@ export const useCorrections = () => {
       number: getNextCorrectionNumber(),
       createdAt: new Date().toISOString(),
       comments: [],
+      isNew: true,
     }
 
     corrections.value.push(newCorrection)
@@ -89,6 +90,7 @@ export const useCorrections = () => {
     if (!correction) return
 
     correction.status = status
+    correction.isNew = false
   }
 
   const deleteCorrection = (correctionId) => {
@@ -96,26 +98,6 @@ export const useCorrections = () => {
       return correction.id !== correctionId
     })
   }
-
-  const statusCounts = computed(() => {
-    return corrections.value.reduce(
-      (counts, correction) => {
-        if (!allowedStatuses.includes(correction.status)) {
-          return counts
-        }
-
-        counts[correction.status] += 1
-
-        return counts
-      },
-      {
-        new: 0,
-        inProgress: 0,
-        review: 0,
-        ready: 0,
-      },
-    )
-  })
 
   return {
     corrections,
@@ -126,6 +108,5 @@ export const useCorrections = () => {
     updateCorrectionStatus,
     deleteCorrection,
     updateCorrection,
-    statusCounts,
   }
 }

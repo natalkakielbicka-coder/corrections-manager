@@ -5,7 +5,7 @@ export const initialCorrections = [
     title: 'Zmiana numeru telefonu w nagłówku',
     description: 'Należy podmienić numer telefonu na wszystkich podstronach.',
     pageId: 101,
-    status: 'new',
+    status: 'inProgress',
     createdAt: '2026-09-12T07:30:00',
     comments: [
       {
@@ -28,7 +28,7 @@ export const initialCorrections = [
     title: 'Poprawienie odstępów w sekcji kontaktowej',
     description: 'Na urządzeniach mobilnych odstęp nad formularzem jest zbyt duży.',
     pageId: 104,
-    status: 'inProgress',
+    status: 'review',
     createdAt: '2026-09-11T15:20:00',
     comments: [
       {

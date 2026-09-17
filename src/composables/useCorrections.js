@@ -1,9 +1,22 @@
 import { ref, computed } from 'vue'
-import { initialCorrections } from '../data/corrections'
+import { fetchCorrections } from '../api/correctionsApi'
 import { correctionStatuses } from '../constants/correctionStatuses'
 
 export const useCorrections = () => {
-  const corrections = ref(structuredClone(initialCorrections))
+  const corrections = ref([])
+  const isLoading = ref(false)
+
+  const loadCorrections = async () => {
+    isLoading.value = true
+
+    try {
+      corrections.value = await fetchCorrections()
+    } catch (error) {
+      console.error(error)
+    } finally {
+      isLoading.value = false
+    }
+  }
 
   const sortedCorrections = computed(() => {
     const correctionsCopy = [...corrections.value]
@@ -108,5 +121,7 @@ export const useCorrections = () => {
     updateCorrectionStatus,
     deleteCorrection,
     updateCorrection,
+    isLoading,
+    loadCorrections,
   }
 }

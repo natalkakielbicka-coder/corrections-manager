@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import ProjectHeader from '../components/project/ProjectHeader.vue'
 import CorrectionsTabs from '../components/corrections/CorrectionsTabs.vue'
 import CorrectionsList from '../components/corrections/CorrectionsList.vue'
@@ -22,7 +22,13 @@ const {
   deleteCorrection,
   updateCorrection,
   deleteComment,
+  isLoading,
+  loadCorrections,
 } = useCorrections()
+
+onMounted(() => {
+  loadCorrections()
+})
 
 const { pages } = usePages()
 
@@ -233,6 +239,10 @@ const confirmDeleteComment = () => {
         @change-user="clearCurrentUser"
       />
 
+      <div v-if="isLoading" class="filter-empty-state">
+        <p>Ładowanie poprawek...</p>
+      </div>
+
       <div class="corrections-toolbar">
         <CorrectionsTabs
           :active-tab="selectedStatusTab"
@@ -296,7 +306,7 @@ const confirmDeleteComment = () => {
         />
       </template>
 
-      <EmptyCorrectionsState v-else @add="openCorrectionForm" />
+      <EmptyCorrectionsState v-else-if="!isLoading" @add="openCorrectionForm" />
     </section>
 
     <CorrectionFormModal

@@ -18,6 +18,16 @@ function corrections_manager_register_rest_routes(): void
             'permission_callback' => '__return_true',
         ]
     );
+
+    register_rest_route(
+        'corrections-manager/v1',
+        '/pages',
+        [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => 'corrections_manager_get_pages',
+            'permission_callback' => '__return_true',
+        ]
+    );
 }
 
 add_action(
@@ -88,4 +98,32 @@ function corrections_manager_get_corrections(): WP_REST_Response
     }
 
     return rest_ensure_response($response);
+}
+
+/**
+ * Pobiera opublikowane strony WordPressa.
+ *
+ * @return WP_REST_Response
+ */
+function corrections_manager_get_pages(): WP_REST_Response
+{
+    $wordpress_pages = get_pages(
+        [
+            'post_status' => 'publish',
+            'sort_column' => 'menu_order,post_title',
+            'sort_order' => 'ASC',
+        ]
+    );
+
+    $pages = [];
+
+    foreach ($wordpress_pages as $wordpress_page) {
+        $pages[] = [
+            'id' => (int) $wordpress_page->ID,
+            'title' => get_the_title($wordpress_page->ID),
+            'url' => get_permalink($wordpress_page->ID),
+        ];
+    }
+
+    return rest_ensure_response($pages);
 }

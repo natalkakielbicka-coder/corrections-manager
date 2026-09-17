@@ -15,3 +15,17 @@ define('CORRECTIONS_MANAGER_VERSION', '1.0.0');
 define('CORRECTIONS_MANAGER_FILE', __FILE__);
 define('CORRECTIONS_MANAGER_PATH', plugin_dir_path(__FILE__));
 define('CORRECTIONS_MANAGER_URL', plugin_dir_url(__FILE__));
+
+/**
+ * Wyświetla kontener aplikacji Vue.
+ *
+ * @return string
+ */
+function corrections_manager_render_app(): string
+{
+    return '<div id="corrections-manager-app">
+        <p>Ładowanie panelu poprawek...</p>
+    </div>';
+}
+
+add_shortcode('corrections_manager', 'corrections_manager_render_app');

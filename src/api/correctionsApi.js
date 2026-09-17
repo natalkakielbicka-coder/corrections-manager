@@ -1,7 +1,7 @@
 const getCorrectionsApiUrl = () => {
   const appElement = document.querySelector('#corrections-manager-app')
 
-  return appElement?.dataset.restUrl ?? ''
+  return appElement?.dataset.correctionsUrl ?? ''
 }
 
 export const fetchCorrections = async () => {

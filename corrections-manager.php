@@ -25,18 +25,24 @@ require_once CORRECTIONS_MANAGER_PATH . 'includes/rest-api.php';
  */
 function corrections_manager_render_app(): string
 {
-    $rest_url = rest_url(
+    $corrections_url = rest_url(
         'corrections-manager/v1/corrections'
+    );
+
+    $pages_url = rest_url(
+        'corrections-manager/v1/pages'
     );
 
     return sprintf(
         '<div
             id="corrections-manager-app"
-            data-rest-url="%s"
+            data-corrections-url="%s"
+            data-pages-url="%s"
         >
             <p>Ładowanie panelu poprawek...</p>
         </div>',
-        esc_url($rest_url)
+        esc_url($corrections_url),
+        esc_url($pages_url)
     );
 }
 

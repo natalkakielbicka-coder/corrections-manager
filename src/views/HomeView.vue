@@ -28,9 +28,10 @@ const {
 
 onMounted(() => {
   loadCorrections()
+  loadPages()
 })
 
-const { pages } = usePages()
+const { pages, loadPages } = usePages()
 
 const { currentUserName, hasCurrentUser, setCurrentUser, clearCurrentUser } = useCurrentUser()
 

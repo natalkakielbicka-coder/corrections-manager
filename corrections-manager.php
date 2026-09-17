@@ -87,3 +87,58 @@ add_action(
     'wp_enqueue_scripts',
     'corrections_manager_enqueue_assets'
 );
+
+/**
+ * Tworzy tabele potrzebne do działania wtyczki.
+ */
+function corrections_manager_activate(): void
+{
+    global $wpdb;
+
+    $corrections_table = $wpdb->prefix . 'corrections_manager_corrections';
+    $comments_table = $wpdb->prefix . 'corrections_manager_comments';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+    $corrections_sql = "CREATE TABLE {$corrections_table} (
+        id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        correction_number bigint(20) unsigned NOT NULL,
+        title varchar(255) NOT NULL,
+        description longtext NOT NULL,
+        page_id bigint(20) unsigned NOT NULL,
+        status varchar(30) NOT NULL DEFAULT 'inProgress',
+        author varchar(150) NOT NULL,
+        image_id bigint(20) unsigned DEFAULT NULL,
+        is_new tinyint(1) NOT NULL DEFAULT 1,
+        created_at datetime NOT NULL,
+        updated_at datetime DEFAULT NULL,
+        PRIMARY KEY  (id),
+        KEY correction_number (correction_number),
+        KEY page_id (page_id),
+        KEY status (status)
+    ) {$charset_collate};";
+
+    $comments_sql = "CREATE TABLE {$comments_table} (
+        id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        correction_id bigint(20) unsigned NOT NULL,
+        author varchar(150) NOT NULL,
+        content longtext NOT NULL,
+        created_at datetime NOT NULL,
+        PRIMARY KEY  (id),
+        KEY correction_id (correction_id)
+    ) {$charset_collate};";
+
+    dbDelta($corrections_sql);
+    dbDelta($comments_sql);
+
+    update_option(
+        'corrections_manager_db_version',
+        CORRECTIONS_MANAGER_VERSION
+    );
+}
+
+register_activation_hook(
+    CORRECTIONS_MANAGER_FILE,
+    'corrections_manager_activate'
+);

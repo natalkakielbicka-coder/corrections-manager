@@ -135,20 +135,28 @@ const closeCorrectionForm = () => {
   correctionToEdit.value = null
 }
 
-const handleCorrectionSubmit = (correctionData) => {
+const handleCorrectionSubmit = async (correctionData) => {
   if (correctionToEdit.value) {
     updateCorrection(correctionToEdit.value.id, correctionData)
+
     showToast('Zapisano zmiany w poprawce')
-  } else {
-    addCorrection({
+    closeCorrectionForm()
+    return
+  }
+
+  try {
+    await addCorrection({
       ...correctionData,
       author: currentUserName.value,
     })
 
     showToast('Dodano nową poprawkę')
-  }
+    closeCorrectionForm()
+  } catch (error) {
+    console.error(error)
 
-  closeCorrectionForm()
+    showToast(error.message || 'Nie udało się dodać poprawki', 'delete')
+  }
 }
 
 const handleAddComment = ({ correctionId, content }) => {

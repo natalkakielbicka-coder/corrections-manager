@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { fetchCorrections } from '../api/correctionsApi'
+import { fetchCorrections, createCorrection } from '../api/correctionsApi'
 import { correctionStatuses } from '../constants/correctionStatuses'
 
 export const useCorrections = () => {
@@ -29,29 +29,12 @@ export const useCorrections = () => {
     })
   })
 
-  const getNextCorrectionNumber = () => {
-    const correctionNumbers = corrections.value
-      .map((correction) => {
-        return correction.number
-      })
-      .filter((number) => {
-        return Number.isFinite(number)
-      })
-
-    return Math.max(0, ...correctionNumbers) + 1
-  }
-
-  const addCorrection = (correctionData) => {
-    const newCorrection = {
-      ...correctionData,
-      id: Date.now(),
-      number: getNextCorrectionNumber(),
-      createdAt: new Date().toISOString(),
-      comments: [],
-      isNew: true,
-    }
+  const addCorrection = async (correctionData) => {
+    const newCorrection = await createCorrection(correctionData)
 
     corrections.value.push(newCorrection)
+
+    return newCorrection
   }
 
   const updateCorrection = (correctionId, correctionData) => {

@@ -35,9 +35,7 @@ function corrections_manager_render_app(): string
 
     $current_page_id = get_queried_object_id();
 
-    $rest_nonce = wp_create_nonce(
-        'corrections_manager_public'
-    );
+    $rest_nonce = wp_create_nonce('wp_rest');
 
     return sprintf(
         '<div

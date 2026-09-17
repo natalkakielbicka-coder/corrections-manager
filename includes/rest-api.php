@@ -174,16 +174,13 @@ function corrections_manager_get_pages(
 function corrections_manager_verify_nonce(
     WP_REST_Request $request
 ) {
-    $nonce = $request->get_header(
-        'X-Corrections-Nonce'
-    );
+    $nonce = $request->get_header('X-WP-Nonce');
 
-    if (
-        ! wp_verify_nonce(
-            $nonce,
-            'corrections_manager_public'
-        )
-    ) {
+    if (! $nonce) {
+        $nonce = $request->get_param('nonce');
+    }
+
+    if (! wp_verify_nonce($nonce, 'wp_rest')) {
         return new WP_Error(
             'corrections_manager_invalid_nonce',
             'Nie udało się potwierdzić żądania.',

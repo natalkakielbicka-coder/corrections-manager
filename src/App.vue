@@ -1,10 +1,10 @@
 <script setup>
-import { RouterView } from 'vue-router'
-import AppToast from './components/ui/AppToast.vue'
+import HomeView from "./views/HomeView.vue";
+import AppToast from "./components/ui/AppToast.vue";
 </script>
 
 <template>
-  <RouterView />
+  <HomeView />
 
   <AppToast />
 </template>

@@ -1,5 +1,5 @@
-@import './base.css';
+@import "./base.css";
 
-#app {
+#corrections-manager-app {
   min-height: 100vh;
 }

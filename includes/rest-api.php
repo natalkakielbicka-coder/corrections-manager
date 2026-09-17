@@ -56,6 +56,33 @@ function corrections_manager_register_rest_routes(): void
             ],
         ]
     );
+
+    register_rest_route(
+    'corrections-manager/v1',
+    '/corrections/(?P<id>\d+)',
+    [
+        'methods' => WP_REST_Server::EDITABLE,
+        'callback' => 'corrections_manager_update_correction',
+        'permission_callback' => 'corrections_manager_verify_nonce',
+        'args' => [
+            'id' => [
+                'sanitize_callback' => 'absint',
+            ],
+            'title' => [
+                'required' => true,
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'description' => [
+                'required' => true,
+                'sanitize_callback' => 'sanitize_textarea_field',
+            ],
+            'pageId' => [
+                'required' => true,
+                'sanitize_callback' => 'absint',
+            ],
+        ],
+    ]
+);
 }
 
 add_action(
@@ -283,5 +310,103 @@ function corrections_manager_create_correction(
             'comments' => [],
         ],
         201
+    );
+}
+
+/**
+ * Aktualizuje istniejącą poprawkę.
+ *
+ * @param WP_REST_Request $request Dane żądania.
+ *
+ * @return WP_REST_Response|WP_Error
+ */
+function corrections_manager_update_correction(
+    WP_REST_Request $request
+) {
+    global $wpdb;
+
+    $table_name =
+        $wpdb->prefix . 'corrections_manager_corrections';
+
+    $correction_id = absint(
+        $request->get_param('id')
+    );
+
+    $existing_correction = $wpdb->get_row(
+        $wpdb->prepare(
+            "SELECT id
+            FROM {$table_name}
+            WHERE id = %d",
+            $correction_id
+        )
+    );
+
+    if (! $existing_correction) {
+        return new WP_Error(
+            'corrections_manager_not_found',
+            'Nie znaleziono poprawki.',
+            ['status' => 404]
+        );
+    }
+
+    $page_id = absint(
+        $request->get_param('pageId')
+    );
+
+    if (
+        'page' !== get_post_type($page_id)
+        || 'publish' !== get_post_status($page_id)
+    ) {
+        return new WP_Error(
+            'corrections_manager_invalid_page',
+            'Wybrana strona nie istnieje.',
+            ['status' => 400]
+        );
+    }
+
+    $updated_at = current_time('mysql', true);
+
+    $updated = $wpdb->update(
+        $table_name,
+        [
+            'title' => $request->get_param('title'),
+            'description' => $request->get_param(
+                'description'
+            ),
+            'page_id' => $page_id,
+            'updated_at' => $updated_at,
+        ],
+        [
+            'id' => $correction_id,
+        ],
+        [
+            '%s',
+            '%s',
+            '%d',
+            '%s',
+        ],
+        [
+            '%d',
+        ]
+    );
+
+    if (false === $updated) {
+        return new WP_Error(
+            'corrections_manager_update_failed',
+            'Nie udało się zaktualizować poprawki.',
+            ['status' => 500]
+        );
+    }
+
+    return rest_ensure_response(
+        [
+            'id' => $correction_id,
+            'title' => $request->get_param('title'),
+            'description' => $request->get_param(
+                'description'
+            ),
+            'pageId' => $page_id,
+            'updatedAt' => $updated_at,
+        ]
     );
 }

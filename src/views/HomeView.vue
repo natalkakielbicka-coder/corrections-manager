@@ -136,26 +136,25 @@ const closeCorrectionForm = () => {
 }
 
 const handleCorrectionSubmit = async (correctionData) => {
-  if (correctionToEdit.value) {
-    updateCorrection(correctionToEdit.value.id, correctionData)
-
-    showToast('Zapisano zmiany w poprawce')
-    closeCorrectionForm()
-    return
-  }
-
   try {
-    await addCorrection({
-      ...correctionData,
-      author: currentUserName.value,
-    })
+    if (correctionToEdit.value) {
+      await updateCorrection(correctionToEdit.value.id, correctionData)
 
-    showToast('Dodano nową poprawkę')
+      showToast('Zapisano zmiany w poprawce')
+    } else {
+      await addCorrection({
+        ...correctionData,
+        author: currentUserName.value,
+      })
+
+      showToast('Dodano nową poprawkę')
+    }
+
     closeCorrectionForm()
   } catch (error) {
     console.error(error)
 
-    showToast(error.message || 'Nie udało się dodać poprawki', 'delete')
+    showToast(error.message || 'Nie udało się zapisać poprawki', 'delete')
   }
 }
 

@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { fetchCorrections, createCorrection } from '../api/correctionsApi'
+import { fetchCorrections, createCorrection, updateCorrectionRequest } from '../api/correctionsApi'
 import { correctionStatuses } from '../constants/correctionStatuses'
 
 export const useCorrections = () => {
@@ -37,14 +37,20 @@ export const useCorrections = () => {
     return newCorrection
   }
 
-  const updateCorrection = (correctionId, correctionData) => {
+  const updateCorrection = async (correctionId, correctionData) => {
+    const updatedCorrection = await updateCorrectionRequest(correctionId, correctionData)
+
     const correction = corrections.value.find((correctionItem) => {
       return correctionItem.id === correctionId
     })
 
-    if (!correction) return
+    if (!correction) {
+      return
+    }
 
-    Object.assign(correction, correctionData)
+    Object.assign(correction, updatedCorrection)
+
+    return updatedCorrection
   }
 
   const addComment = ({ correctionId, content, author }) => {

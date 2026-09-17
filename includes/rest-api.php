@@ -58,31 +58,63 @@ function corrections_manager_register_rest_routes(): void
     );
 
     register_rest_route(
-    'corrections-manager/v1',
-    '/corrections/(?P<id>\d+)',
-    [
-        'methods' => WP_REST_Server::EDITABLE,
-        'callback' => 'corrections_manager_update_correction',
-        'permission_callback' => 'corrections_manager_verify_nonce',
-        'args' => [
-            'id' => [
-                'sanitize_callback' => 'absint',
+        'corrections-manager/v1',
+        '/corrections/(?P<id>\d+)',
+        [
+            'methods' => WP_REST_Server::EDITABLE,
+            'callback' => 'corrections_manager_update_correction',
+            'permission_callback' => 'corrections_manager_verify_nonce',
+            'args' => [
+                'id' => [
+                    'sanitize_callback' => 'absint',
+                ],
+                'title' => [
+                    'required' => true,
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+                'description' => [
+                    'required' => true,
+                    'sanitize_callback' => 'sanitize_textarea_field',
+                ],
+                'pageId' => [
+                    'required' => true,
+                    'sanitize_callback' => 'absint',
+                ],
             ],
-            'title' => [
-                'required' => true,
-                'sanitize_callback' => 'sanitize_text_field',
+        ]
+    );
+
+    register_rest_route(
+        'corrections-manager/v1',
+        '/corrections/(?P<id>\d+)/status',
+        [
+            'methods' => WP_REST_Server::EDITABLE,
+            'callback' => 'corrections_manager_update_status',
+            'permission_callback' => 'corrections_manager_verify_nonce',
+            'args' => [
+                'id' => [
+                    'sanitize_callback' => 'absint',
+                ],
+                'status' => [
+                    'required' => true,
+                    'sanitize_callback' => 'sanitize_text_field',
+                    'validate_callback' => function (
+                        $status
+                    ): bool {
+                        return in_array(
+                            $status,
+                            [
+                                'inProgress',
+                                'review',
+                                'ready',
+                            ],
+                            true
+                        );
+                    },
+                ],
             ],
-            'description' => [
-                'required' => true,
-                'sanitize_callback' => 'sanitize_textarea_field',
-            ],
-            'pageId' => [
-                'required' => true,
-                'sanitize_callback' => 'absint',
-            ],
-        ],
-    ]
-);
+        ]
+    );
 }
 
 add_action(
@@ -406,6 +438,84 @@ function corrections_manager_update_correction(
                 'description'
             ),
             'pageId' => $page_id,
+            'updatedAt' => $updated_at,
+        ]
+    );
+}
+
+/**
+ * Aktualizuje status poprawki.
+ *
+ * @param WP_REST_Request $request Dane żądania.
+ *
+ * @return WP_REST_Response|WP_Error
+ */
+function corrections_manager_update_status(
+    WP_REST_Request $request
+) {
+    global $wpdb;
+
+    $table_name =
+        $wpdb->prefix . 'corrections_manager_corrections';
+
+    $correction_id = absint(
+        $request->get_param('id')
+    );
+
+    $status = $request->get_param('status');
+
+    $existing_correction = $wpdb->get_row(
+        $wpdb->prepare(
+            "SELECT id
+            FROM {$table_name}
+            WHERE id = %d",
+            $correction_id
+        )
+    );
+
+    if (! $existing_correction) {
+        return new WP_Error(
+            'corrections_manager_not_found',
+            'Nie znaleziono poprawki.',
+            ['status' => 404]
+        );
+    }
+
+    $updated_at = current_time('mysql', true);
+
+    $updated = $wpdb->update(
+        $table_name,
+        [
+            'status' => $status,
+            'is_new' => 0,
+            'updated_at' => $updated_at,
+        ],
+        [
+            'id' => $correction_id,
+        ],
+        [
+            '%s',
+            '%d',
+            '%s',
+        ],
+        [
+            '%d',
+        ]
+    );
+
+    if (false === $updated) {
+        return new WP_Error(
+            'corrections_manager_status_failed',
+            'Nie udało się zmienić statusu.',
+            ['status' => 500]
+        );
+    }
+
+    return rest_ensure_response(
+        [
+            'id' => $correction_id,
+            'status' => $status,
+            'isNew' => false,
             'updatedAt' => $updated_at,
         ]
     );

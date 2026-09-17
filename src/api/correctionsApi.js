@@ -93,3 +93,34 @@ export const updateCorrectionRequest = async (correctionId, correctionData) => {
 
   return response.json()
 }
+
+export const updateCorrectionStatusRequest = async (correctionId, status) => {
+  const { apiUrl, nonce } = getCorrectionsApiConfig()
+
+  if (!apiUrl || !nonce) {
+    throw new Error('Brakuje konfiguracji REST API.')
+  }
+
+  const response = await fetch(`${apiUrl}/${correctionId}/status`, {
+    method: 'PATCH',
+
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-WP-Nonce': nonce,
+    },
+
+    body: JSON.stringify({
+      status,
+      nonce,
+    }),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null)
+
+    throw new Error(errorData?.message ?? 'Nie udało się zmienić statusu.')
+  }
+
+  return response.json()
+}

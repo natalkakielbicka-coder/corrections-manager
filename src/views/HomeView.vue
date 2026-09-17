@@ -168,17 +168,27 @@ const handleAddComment = ({ correctionId, content }) => {
   showToast('Dodano komentarz')
 }
 
-const handleStatusUpdate = ({ correctionId, status }) => {
+const handleStatusUpdate = async ({ correctionId, status }) => {
   const statusData = correctionStatuses[status]
 
-  if (!statusData) return
+  if (!statusData) {
+    return
+  }
 
-  updateCorrectionStatus({
-    correctionId,
-    status,
-  })
+  try {
+    await updateCorrectionStatus({
+      correctionId,
+      status,
+    })
 
-  showToast(`Zmieniono status na „${statusData.label}”`)
+    selectedStatusTab.value = status === 'inProgress' ? 'active' : status
+
+    showToast(`Przeniesiono poprawkę do „${statusData.label}”`)
+  } catch (error) {
+    console.error(error)
+
+    showToast(error.message || 'Nie udało się zmienić statusu', 'delete')
+  }
 }
 
 const openDeleteModal = (correctionId) => {

@@ -28,6 +28,34 @@ function corrections_manager_register_rest_routes(): void
             'permission_callback' => '__return_true',
         ]
     );
+
+    register_rest_route(
+        'corrections-manager/v1',
+        '/corrections',
+        [
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => 'corrections_manager_create_correction',
+            'permission_callback' => 'corrections_manager_verify_nonce',
+            'args' => [
+                'title' => [
+                    'required' => true,
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+                'description' => [
+                    'required' => true,
+                    'sanitize_callback' => 'sanitize_textarea_field',
+                ],
+                'pageId' => [
+                    'required' => true,
+                    'sanitize_callback' => 'absint',
+                ],
+                'author' => [
+                    'required' => true,
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+            ],
+        ]
+    );
 }
 
 add_action(
@@ -134,4 +162,129 @@ function corrections_manager_get_pages(
     }
 
     return rest_ensure_response($pages);
+}
+
+/**
+ * Sprawdza token bezpieczeństwa żądania.
+ *
+ * @param WP_REST_Request $request Dane żądania REST API.
+ *
+ * @return true|WP_Error
+ */
+function corrections_manager_verify_nonce(
+    WP_REST_Request $request
+) {
+    $nonce = $request->get_header(
+        'X-Corrections-Nonce'
+    );
+
+    if (
+        ! wp_verify_nonce(
+            $nonce,
+            'corrections_manager_public'
+        )
+    ) {
+        return new WP_Error(
+            'corrections_manager_invalid_nonce',
+            'Nie udało się potwierdzić żądania.',
+            ['status' => 403]
+        );
+    }
+
+    return true;
+}
+
+/**
+ * Zapisuje nową poprawkę w bazie danych.
+ *
+ * @param WP_REST_Request $request Dane żądania REST API.
+ *
+ * @return WP_REST_Response|WP_Error
+ */
+function corrections_manager_create_correction(
+    WP_REST_Request $request
+) {
+    global $wpdb;
+
+    $table_name =
+        $wpdb->prefix . 'corrections_manager_corrections';
+
+    $page_id = absint(
+        $request->get_param('pageId')
+    );
+
+    if (
+        'page' !== get_post_type($page_id)
+        || 'publish' !== get_post_status($page_id)
+    ) {
+        return new WP_Error(
+            'corrections_manager_invalid_page',
+            'Wybrana strona nie istnieje.',
+            ['status' => 400]
+        );
+    }
+
+    $last_number = (int) $wpdb->get_var(
+        "SELECT MAX(correction_number)
+        FROM {$table_name}"
+    );
+
+    $created_at = current_time('mysql', true);
+
+    $inserted = $wpdb->insert(
+        $table_name,
+        [
+            'correction_number' => $last_number + 1,
+            'title' => $request->get_param('title'),
+            'description' => $request->get_param('description'),
+            'page_id' => $page_id,
+            'status' => 'inProgress',
+            'author' => $request->get_param('author'),
+            'image_id' => null,
+            'is_new' => 1,
+            'created_at' => $created_at,
+            'updated_at' => null,
+        ],
+        [
+            '%d',
+            '%s',
+            '%s',
+            '%d',
+            '%s',
+            '%s',
+            '%d',
+            '%d',
+            '%s',
+            '%s',
+        ]
+    );
+
+    if (false === $inserted) {
+        return new WP_Error(
+            'corrections_manager_insert_failed',
+            'Nie udało się zapisać poprawki.',
+            ['status' => 500]
+        );
+    }
+
+    $correction_id = (int) $wpdb->insert_id;
+
+    return new WP_REST_Response(
+        [
+            'id' => $correction_id,
+            'number' => $last_number + 1,
+            'title' => $request->get_param('title'),
+            'description' => $request->get_param('description'),
+            'pageId' => $page_id,
+            'status' => 'inProgress',
+            'author' => $request->get_param('author'),
+            'imageId' => null,
+            'imageUrl' => '',
+            'isNew' => true,
+            'createdAt' => $created_at,
+            'updatedAt' => null,
+            'comments' => [],
+        ],
+        201
+    );
 }

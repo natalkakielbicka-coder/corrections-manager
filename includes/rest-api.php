@@ -105,13 +105,21 @@ function corrections_manager_get_corrections(): WP_REST_Response
  *
  * @return WP_REST_Response
  */
-function corrections_manager_get_pages(): WP_REST_Response
-{
+function corrections_manager_get_pages(
+    WP_REST_Request $request
+): WP_REST_Response {
+    $excluded_page_id = absint(
+        $request->get_param('exclude')
+    );
+
     $wordpress_pages = get_pages(
         [
             'post_status' => 'publish',
             'sort_column' => 'menu_order,post_title',
             'sort_order' => 'ASC',
+            'exclude' => $excluded_page_id
+                ? [$excluded_page_id]
+                : [],
         ]
     );
 

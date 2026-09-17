@@ -1,7 +1,20 @@
 const getPagesApiUrl = () => {
   const appElement = document.querySelector('#corrections-manager-app')
 
-  return appElement?.dataset.pagesUrl ?? ''
+  const pagesUrl = appElement?.dataset.pagesUrl ?? ''
+  const currentPageId = appElement?.dataset.currentPageId ?? ''
+
+  if (!pagesUrl) {
+    return ''
+  }
+
+  const apiUrl = new URL(pagesUrl)
+
+  if (currentPageId) {
+    apiUrl.searchParams.set('exclude', currentPageId)
+  }
+
+  return apiUrl.toString()
 }
 
 export const fetchPages = async () => {

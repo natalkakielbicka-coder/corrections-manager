@@ -33,16 +33,20 @@ function corrections_manager_render_app(): string
         'corrections-manager/v1/pages'
     );
 
+    $current_page_id = get_queried_object_id();
+
     return sprintf(
         '<div
             id="corrections-manager-app"
             data-corrections-url="%s"
             data-pages-url="%s"
+            data-current-page-id="%d"
         >
             <p>Ładowanie panelu poprawek...</p>
         </div>',
         esc_url($corrections_url),
-        esc_url($pages_url)
+        esc_url($pages_url),
+        absint($current_page_id)
     );
 }
 

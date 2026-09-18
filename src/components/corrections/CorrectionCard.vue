@@ -19,6 +19,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  isStatusUpdating: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const { getPageById } = usePages()
@@ -69,6 +73,7 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
               class="correction-card__status"
               :class="correctionStatuses[correction.status]?.className"
               :value="correction.status"
+              :disabled="isStatusUpdating"
               aria-label="Zmień status poprawki"
               @change="
                 emit('update-status', {

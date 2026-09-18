@@ -25,6 +25,7 @@ let correctionsRefreshIntervalId = null
 const isSubmittingCorrectionForm = ref(false)
 const isDeletingCorrection = ref(false)
 const isDeletingComment = ref(false)
+const updatingStatusCorrectionIds = ref([])
 
 const refreshCorrectionsIfPossible = () => {
   const hasOpenModal =
@@ -228,9 +229,11 @@ const handleAddComment = async ({ correctionId, content }) => {
 const handleStatusUpdate = async ({ correctionId, status }) => {
   const statusData = correctionStatuses[status]
 
-  if (!statusData) {
+  if (!statusData || updatingStatusCorrectionIds.value.includes(correctionId)) {
     return
   }
+
+  updatingStatusCorrectionIds.value.push(correctionId)
 
   try {
     await updateCorrectionStatus({
@@ -245,6 +248,10 @@ const handleStatusUpdate = async ({ correctionId, status }) => {
     console.error(error)
 
     showToast(error.message || 'Nie udało się zmienić statusu', 'delete')
+  } finally {
+    updatingStatusCorrectionIds.value = updatingStatusCorrectionIds.value.filter((id) => {
+      return id !== correctionId
+    })
   }
 }
 
@@ -398,6 +405,7 @@ const confirmDeleteComment = async () => {
           v-if="visibleCorrections.length"
           :corrections="visibleCorrections"
           :show-comments="selectedStatusTab !== 'ready'"
+          :updating-status-correction-ids="updatingStatusCorrectionIds"
           @add-comment="handleAddComment"
           @update-status="handleStatusUpdate"
           @edit="openEditModal"

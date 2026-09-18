@@ -10,6 +10,10 @@ const props = defineProps({
     type: Object,
     default: null,
   },
+  isSubmitting: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const { pages, getPageById } = usePages()
@@ -82,6 +86,8 @@ const handleImageChange = (event) => {
 }
 
 const submitForm = () => {
+  if (props.isSubmitting) return
+
   const selectedPage = getPageById(formData.pageId)
 
   if (!selectedPage) return
@@ -172,8 +178,13 @@ const submitForm = () => {
           Anuluj
         </button>
 
-        <button class="button button--primary" type="submit" form="correction-form">
-          {{ isEditing ? 'Zapisz zmiany' : 'Dodaj poprawkę' }}
+        <button
+          class="button button--primary"
+          type="submit"
+          form="correction-form"
+          :disabled="isSubmitting"
+        >
+          {{ isSubmitting ? 'Zapisywanie...' : isEditing ? 'Zapisz zmiany' : 'Dodaj poprawkę' }}
         </button>
       </div>
     </template>

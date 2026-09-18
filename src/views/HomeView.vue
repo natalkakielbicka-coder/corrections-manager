@@ -22,6 +22,8 @@ const REFRESH_INTERVAL = 15_000
 
 let correctionsRefreshIntervalId = null
 
+const isSubmittingCorrectionForm = ref(false)
+
 const refreshCorrectionsIfPossible = () => {
   const hasOpenModal =
     isCorrectionFormOpen.value ||
@@ -177,6 +179,10 @@ const closeCorrectionForm = () => {
 }
 
 const handleCorrectionSubmit = async (correctionData) => {
+  if (isSubmittingCorrectionForm.value) return
+
+  isSubmittingCorrectionForm.value = true
+
   try {
     if (correctionToEdit.value) {
       await updateCorrection(correctionToEdit.value.id, correctionData)
@@ -196,6 +202,8 @@ const handleCorrectionSubmit = async (correctionData) => {
     console.error(error)
 
     showToast(error.message || 'Nie udało się zapisać poprawki', 'delete')
+  } finally {
+    isSubmittingCorrectionForm.value = false
   }
 }
 
@@ -394,6 +402,7 @@ const confirmDeleteComment = async () => {
     <CorrectionFormModal
       v-if="isCorrectionFormOpen"
       :correction="correctionToEdit"
+      :is-submitting="isSubmittingCorrectionForm"
       @close="closeCorrectionForm"
       @submit="handleCorrectionSubmit"
     />

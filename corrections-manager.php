@@ -100,6 +100,13 @@ function corrections_manager_enqueue_assets(): void
 
     $entry = $manifest['index.html'];
 
+    wp_enqueue_style(
+        'corrections-manager-font',
+        'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap',
+        [],
+        null
+    );
+
     if (! empty($entry['css'])) {
         foreach ($entry['css'] as $index => $css_file) {
             wp_enqueue_style(

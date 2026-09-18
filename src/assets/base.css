@@ -47,3 +47,31 @@ svg {
   display: block;
   max-width: 100%;
 }
+
+#corrections-manager-app {
+  color: var(--color-text);
+  font-family: 'Manrope', sans-serif;
+  font-size: 16px;
+}
+
+#corrections-manager-app * {
+  font-family: inherit;
+}
+
+#corrections-manager-app button,
+#corrections-manager-app input,
+#corrections-manager-app textarea,
+#corrections-manager-app select {
+  font-family: inherit;
+}
+
+#corrections-manager-app button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+#corrections-manager-app button:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 3px;
+  box-shadow: none;
+}

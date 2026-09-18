@@ -86,9 +86,12 @@ const submitForm = () => {
 
   if (!selectedPage) return
 
+  const removeImage = isEditing.value && Boolean(props.correction?.imageUrl) && !formData.imageUrl
+
   emit('submit', {
     ...formData,
     imageFile: imageFile.value,
+    removeImage,
   })
 }
 </script>

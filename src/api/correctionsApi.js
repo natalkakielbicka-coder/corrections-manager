@@ -46,8 +46,8 @@ export const createCorrection = async (correctionData) => {
     formData.append('image', correctionData.imageFile)
   }
 
-  const response = await fetch(apiUrl, {
-    method: 'POST',
+  const response = await fetch(`${apiUrl}/${correctionId}`, {
+    method: 'PATCH',
 
     headers: {
       Accept: 'application/json',
@@ -71,6 +71,19 @@ export const updateCorrectionRequest = async (correctionId, correctionData) => {
 
   if (!apiUrl || !nonce) {
     throw new Error('Brakuje konfiguracji REST API.')
+  }
+
+  const formData = new FormData()
+
+  formData.append('title', correctionData.title)
+  formData.append('description', correctionData.description)
+  formData.append('pageId', String(correctionData.pageId))
+  formData.append('expectedUpdatedAt', correctionData.expectedUpdatedAt ?? '')
+  formData.append('removeImage', correctionData.removeImage ? '1' : '0')
+  formData.append('nonce', nonce)
+
+  if (correctionData.imageFile) {
+    formData.append('image', correctionData.imageFile)
   }
 
   const response = await fetch(`${apiUrl}/${correctionId}`, {

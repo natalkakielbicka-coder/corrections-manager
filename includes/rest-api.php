@@ -83,6 +83,9 @@ function corrections_manager_register_rest_routes(): void
                 'expectedUpdatedAt' => [
                     'sanitize_callback' => 'sanitize_text_field',
                 ],
+                'removeImage' => [
+                    'sanitize_callback' => 'rest_sanitize_boolean',
+                ],
             ],
         ]
     );
@@ -269,6 +272,104 @@ function corrections_manager_verify_nonce(
 }
 
 /**
+ * Zapisuje obraz przesłany przez REST API.
+ *
+ * @param WP_REST_Request $request Dane żądania.
+ *
+ * @return int|null|WP_Error
+ */
+function corrections_manager_upload_image(
+    WP_REST_Request $request
+) {
+    $files = $request->get_file_params();
+
+    if (empty($files['image'])) {
+        return null;
+    }
+
+    $image = $files['image'];
+
+    if (UPLOAD_ERR_OK !== $image['error']) {
+        return new WP_Error(
+            'corrections_manager_upload_error',
+            'Nie udało się przesłać obrazu.',
+            ['status' => 400]
+        );
+    }
+
+    $max_image_size = 5 * 1024 * 1024;
+
+    if ($image['size'] > $max_image_size) {
+        return new WP_Error(
+            'corrections_manager_image_too_large',
+            'Obraz nie może być większy niż 5 MB.',
+            ['status' => 400]
+        );
+    }
+
+    $allowed_mime_types = [
+        'jpg|jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'webp' => 'image/webp',
+    ];
+
+    $checked_file = wp_check_filetype_and_ext(
+        $image['tmp_name'],
+        $image['name'],
+        $allowed_mime_types
+    );
+
+    if (
+        empty($checked_file['ext'])
+        || empty($checked_file['type'])
+    ) {
+        return new WP_Error(
+            'corrections_manager_invalid_image',
+            'Dozwolone są tylko obrazy JPG, PNG i WebP.',
+            ['status' => 400]
+        );
+    }
+
+    require_once ABSPATH
+        . 'wp-admin/includes/file.php';
+
+    require_once ABSPATH
+        . 'wp-admin/includes/media.php';
+
+    require_once ABSPATH
+        . 'wp-admin/includes/image.php';
+
+    $image_id = media_handle_upload(
+        'image',
+        0,
+        [
+            'post_title' => $request->get_param(
+                'title'
+            ),
+        ],
+        [
+            'test_form' => false,
+        ]
+    );
+
+    if (is_wp_error($image_id)) {
+        return new WP_Error(
+            'corrections_manager_image_save_failed',
+            $image_id->get_error_message(),
+            ['status' => 400]
+        );
+    }
+
+    update_post_meta(
+        $image_id,
+        '_corrections_manager_upload',
+        1
+    );
+
+    return (int) $image_id;
+}
+
+/**
  * Zapisuje nową poprawkę w bazie danych.
  *
  * @param WP_REST_Request $request Dane żądania REST API.
@@ -287,89 +388,11 @@ function corrections_manager_create_correction(
         $request->get_param('pageId')
     );
 
-    $image_id = null;
+    $image_id =
+    corrections_manager_upload_image($request);
 
-    $files = $request->get_file_params();
-
-    if (! empty($files['image'])) {
-        $image = $files['image'];
-
-        if (UPLOAD_ERR_OK !== $image['error']) {
-            return new WP_Error(
-                'corrections_manager_upload_error',
-                'Nie udało się przesłać obrazu.',
-                ['status' => 400]
-            );
-        }
-
-        $max_image_size = 5 * 1024 * 1024;
-
-        if ($image['size'] > $max_image_size) {
-            return new WP_Error(
-                'corrections_manager_image_too_large',
-                'Obraz nie może być większy niż 5 MB.',
-                ['status' => 400]
-            );
-        }
-
-        $allowed_mime_types = [
-            'jpg|jpeg' => 'image/jpeg',
-            'png' => 'image/png',
-            'webp' => 'image/webp',
-        ];
-
-        $checked_file = wp_check_filetype_and_ext(
-            $image['tmp_name'],
-            $image['name'],
-            $allowed_mime_types
-        );
-
-        if (
-            empty($checked_file['ext'])
-            || empty($checked_file['type'])
-        ) {
-            return new WP_Error(
-                'corrections_manager_invalid_image',
-                'Dozwolone są tylko obrazy JPG, PNG i WebP.',
-                ['status' => 400]
-            );
-        }
-
-        require_once ABSPATH
-            . 'wp-admin/includes/file.php';
-
-        require_once ABSPATH
-            . 'wp-admin/includes/media.php';
-
-        require_once ABSPATH
-            . 'wp-admin/includes/image.php';
-
-        $image_id = media_handle_upload(
-            'image',
-            0,
-            [
-                'post_title' => $request->get_param(
-                    'title'
-                ),
-            ],
-            [
-                'test_form' => false,
-            ]
-        );
-
-        if (is_wp_error($image_id)) {
-            return new WP_Error(
-                'corrections_manager_image_save_failed',
-                $image_id->get_error_message(),
-                ['status' => 400]
-            );
-        }
-
-        update_post_meta(
-            $image_id,
-            '_corrections_manager_upload',
-            1
-        );
+    if (is_wp_error($image_id)) {
+        return $image_id;
     }
 
     if (
@@ -477,7 +500,7 @@ function corrections_manager_update_correction(
 
     $existing_correction = $wpdb->get_row(
         $wpdb->prepare(
-            "SELECT id, updated_at
+            "SELECT id, updated_at, image_id
             FROM {$table_name}
             WHERE id = %d",
             $correction_id
@@ -522,6 +545,29 @@ function corrections_manager_update_correction(
         );
     }
 
+    $old_image_id = $existing_correction->image_id
+    ? (int) $existing_correction->image_id
+    : null;
+
+    $new_image_id =
+        corrections_manager_upload_image($request);
+
+    if (is_wp_error($new_image_id)) {
+        return $new_image_id;
+    }
+
+    $remove_image = rest_sanitize_boolean(
+        $request->get_param('removeImage')
+    );
+
+    $final_image_id = $old_image_id;
+
+    if ($new_image_id) {
+        $final_image_id = $new_image_id;
+    } elseif ($remove_image) {
+        $final_image_id = null;
+    }
+
     $updated_at = current_time('mysql', true);
 
     $updated = $wpdb->update(
@@ -532,6 +578,7 @@ function corrections_manager_update_correction(
                 'description'
             ),
             'page_id' => $page_id,
+            'image_id' => $final_image_id,
             'updated_at' => $updated_at,
         ],
         [
@@ -542,6 +589,7 @@ function corrections_manager_update_correction(
             '%s',
             '%d',
             '%s',
+            '%s',
         ],
         [
             '%d',
@@ -549,10 +597,33 @@ function corrections_manager_update_correction(
     );
 
     if (false === $updated) {
+        if ($new_image_id) {
+            wp_delete_attachment(
+                $new_image_id,
+                true
+            );
+        }
+
         return new WP_Error(
             'corrections_manager_update_failed',
             'Nie udało się zaktualizować poprawki.',
             ['status' => 500]
+        );
+    }
+
+    $should_delete_old_image =
+        $old_image_id
+        && $old_image_id !== $final_image_id
+        && get_post_meta(
+            $old_image_id,
+            '_corrections_manager_upload',
+            true
+        );
+
+    if ($should_delete_old_image) {
+        wp_delete_attachment(
+            $old_image_id,
+            true
         );
     }
 
@@ -564,6 +635,12 @@ function corrections_manager_update_correction(
                 'description'
             ),
             'pageId' => $page_id,
+            'imageId' => $final_image_id,
+            'imageUrl' => $final_image_id
+                ? wp_get_attachment_url(
+                    $final_image_id
+                )
+                : '',
             'updatedAt' => $updated_at,
         ]
     );

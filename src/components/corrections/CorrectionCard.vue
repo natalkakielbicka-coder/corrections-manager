@@ -23,6 +23,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isAddingComment: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const { getPageById } = usePages()
@@ -154,6 +158,7 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
       <CorrectionComments
         :comments="correction.comments"
         :correction-id="correction.id"
+        :is-submitting="isAddingComment"
         @add="emit('add-comment', $event)"
         @delete="emit('delete-comment', $event)"
       />

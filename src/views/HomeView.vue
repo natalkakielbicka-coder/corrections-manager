@@ -26,6 +26,7 @@ const isSubmittingCorrectionForm = ref(false)
 const isDeletingCorrection = ref(false)
 const isDeletingComment = ref(false)
 const updatingStatusCorrectionIds = ref([])
+const addingCommentCorrectionIds = ref([])
 
 const refreshCorrectionsIfPossible = () => {
   const hasOpenModal =
@@ -211,6 +212,12 @@ const handleCorrectionSubmit = async (correctionData) => {
 }
 
 const handleAddComment = async ({ correctionId, content }) => {
+  if (addingCommentCorrectionIds.value.includes(correctionId)) {
+    return
+  }
+
+  addingCommentCorrectionIds.value.push(correctionId)
+
   try {
     await addComment({
       correctionId,
@@ -223,6 +230,10 @@ const handleAddComment = async ({ correctionId, content }) => {
     console.error(error)
 
     showToast(error.message || 'Nie udało się dodać komentarza', 'delete')
+  } finally {
+    addingCommentCorrectionIds.value = addingCommentCorrectionIds.value.filter((id) => {
+      return id !== correctionId
+    })
   }
 }
 
@@ -406,6 +417,7 @@ const confirmDeleteComment = async () => {
           :corrections="visibleCorrections"
           :show-comments="selectedStatusTab !== 'ready'"
           :updating-status-correction-ids="updatingStatusCorrectionIds"
+          :adding-comment-correction-ids="addingCommentCorrectionIds"
           @add-comment="handleAddComment"
           @update-status="handleStatusUpdate"
           @edit="openEditModal"

@@ -14,6 +14,10 @@ defineProps({
     type: Array,
     default: () => [],
   },
+  addingCommentCorrectionIds: {
+    type: Array,
+    default: () => [],
+  },
 })
 
 const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'delete-comment'])
@@ -26,6 +30,7 @@ const emit = defineEmits(['add-comment', 'update-status', 'edit', 'delete', 'del
       :key="correction.id"
       :correction="correction"
       :is-status-updating="updatingStatusCorrectionIds.includes(correction.id)"
+      :is-adding-comment="addingCommentCorrectionIds.includes(correction.id)"
       :show-comments="showComments"
       :number="correction.number"
       @add-comment="emit('add-comment', $event)"

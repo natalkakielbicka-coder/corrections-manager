@@ -11,6 +11,10 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  isSubmitting: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['add', 'delete'])
@@ -19,6 +23,8 @@ const newComment = ref('')
 const commentInputId = `comment-${props.correctionId}`
 
 const submitComment = () => {
+  if (props.isSubmitting) return
+
   const content = newComment.value.trim()
 
   if (!content) return
@@ -82,10 +88,13 @@ const submitComment = () => {
         v-model="newComment"
         type="text"
         placeholder="Napisz komentarz..."
+        :disabled="isSubmitting"
         required
       />
 
-      <button type="submit">Dodaj</button>
+      <button type="submit" :disabled="isSubmitting">
+        {{ isSubmitting ? 'Dodawanie...' : 'Dodaj' }}
+      </button>
     </form>
   </section>
 </template>

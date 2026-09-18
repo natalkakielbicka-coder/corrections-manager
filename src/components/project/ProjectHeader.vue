@@ -8,6 +8,10 @@ defineProps({
     type: Boolean,
     default: true,
   },
+  siteName: {
+    type: String,
+    required: true,
+  },
 })
 
 defineEmits(['add-correction', 'change-user'])
@@ -18,7 +22,7 @@ defineEmits(['add-correction', 'change-user'])
     <div>
       <h1>Poprawki do strony</h1>
 
-      <p class="project-board__name">Zielony Dom</p>
+      <p class="project-board__name">{{ siteName }}</p>
 
       <p class="project-board__description">
         Tu wspólnie zapisujemy i omawiamy poprawki do projektu.

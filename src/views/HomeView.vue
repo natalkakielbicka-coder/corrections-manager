@@ -14,6 +14,10 @@ import { useToast } from '../composables/useToast'
 import { correctionStatuses } from '../constants/correctionStatuses'
 import UserEntryScreen from '../components/UserEntryScreen.vue'
 
+const appElement = document.querySelector('#corrections-manager-app')
+
+const siteName = appElement?.dataset.siteName || 'Strona internetowa'
+
 const REFRESH_INTERVAL = 15_000
 
 let correctionsRefreshIntervalId = null
@@ -289,6 +293,7 @@ const confirmDeleteComment = () => {
   <main v-else class="page">
     <section class="project-board">
       <ProjectHeader
+        :site-name="siteName"
         :current-user-name="currentUserName"
         :can-change-user="!isWordPressUser"
         @add-correction="openCorrectionForm"

@@ -35,6 +35,8 @@ function corrections_manager_render_app(): string
 
     $current_page_id = get_queried_object_id();
 
+    $site_name = get_bloginfo('name');
+
     $rest_nonce = wp_create_nonce('wp_rest');
 
     $current_user = wp_get_current_user();
@@ -51,6 +53,7 @@ function corrections_manager_render_app(): string
             data-current-page-id="%d"
             data-rest-nonce="%s"
             data-current-user-name="%s"
+            data-site-name="%s"
         >
             <p>Ładowanie panelu poprawek...</p>
         </div>',
@@ -58,7 +61,8 @@ function corrections_manager_render_app(): string
         esc_url($pages_url),
         absint($current_page_id),
         esc_attr($rest_nonce),
-        esc_attr($current_user_name)
+        esc_attr($current_user_name),
+        esc_attr($site_name)
     );
 }
 

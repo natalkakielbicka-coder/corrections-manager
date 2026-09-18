@@ -289,16 +289,22 @@ const closeDeleteCommentModal = () => {
   commentToDelete.value = null
 }
 
-const confirmDeleteComment = () => {
+const confirmDeleteComment = async () => {
   if (!commentToDelete.value) return
 
-  deleteComment({
-    correctionId: commentToDelete.value.correctionId,
-    commentId: commentToDelete.value.commentId,
-  })
+  try {
+    await deleteComment({
+      correctionId: commentToDelete.value.correctionId,
+      commentId: commentToDelete.value.commentId,
+    })
 
-  closeDeleteCommentModal()
-  showToast('Usunięto komentarz', 'delete')
+    closeDeleteCommentModal()
+    showToast('Usunięto komentarz', 'delete')
+  } catch (error) {
+    console.error(error)
+
+    showToast(error.message || 'Nie udało się usunąć komentarza', 'delete')
+  }
 }
 </script>
 

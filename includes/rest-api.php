@@ -137,7 +137,7 @@ function corrections_manager_register_rest_routes(): void
         ]
     );
 
-        register_rest_route(
+    register_rest_route(
         'corrections-manager/v1',
         '/corrections/(?P<id>\d+)/comments',
         [
@@ -155,6 +155,24 @@ function corrections_manager_register_rest_routes(): void
                 'author' => [
                     'required' => true,
                     'sanitize_callback' => 'sanitize_text_field',
+                ],
+            ],
+        ]
+    );
+
+    register_rest_route(
+        'corrections-manager/v1',
+        '/corrections/(?P<id>\d+)/comments/(?P<commentId>\d+)',
+        [
+            'methods' => WP_REST_Server::DELETABLE,
+            'callback' => 'corrections_manager_delete_comment',
+            'permission_callback' => 'corrections_manager_verify_nonce',
+            'args' => [
+                'id' => [
+                    'sanitize_callback' => 'absint',
+                ],
+                'commentId' => [
+                    'sanitize_callback' => 'absint',
                 ],
             ],
         ]
@@ -914,5 +932,72 @@ function corrections_manager_add_comment(
             'createdAt' => $created_at,
         ],
         201
+    );
+}
+
+/**
+ * Usuwa komentarz poprawki.
+ *
+ * @param WP_REST_Request $request Dane żądania.
+ *
+ * @return WP_REST_Response|WP_Error
+ */
+function corrections_manager_delete_comment(
+    WP_REST_Request $request
+) {
+    global $wpdb;
+
+    $comments_table =
+        $wpdb->prefix . 'corrections_manager_comments';
+
+    $correction_id = absint(
+        $request->get_param('id')
+    );
+
+    $comment_id = absint(
+        $request->get_param('commentId')
+    );
+
+    $comment_exists = $wpdb->get_var(
+        $wpdb->prepare(
+            "SELECT id
+            FROM {$comments_table}
+            WHERE id = %d AND correction_id = %d",
+            $comment_id,
+            $correction_id
+        )
+    );
+
+    if (! $comment_exists) {
+        return new WP_Error(
+            'corrections_manager_comment_not_found',
+            'Nie znaleziono komentarza.',
+            ['status' => 404]
+        );
+    }
+
+    $deleted = $wpdb->delete(
+        $comments_table,
+        [
+            'id' => $comment_id,
+        ],
+        [
+            '%d',
+        ]
+    );
+
+    if (false === $deleted) {
+        return new WP_Error(
+            'corrections_manager_comment_delete_failed',
+            'Nie udało się usunąć komentarza.',
+            ['status' => 500]
+        );
+    }
+
+    return rest_ensure_response(
+        [
+            'id' => $comment_id,
+            'deleted' => true,
+        ]
     );
 }

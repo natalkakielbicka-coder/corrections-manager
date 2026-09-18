@@ -194,3 +194,33 @@ export const addCommentRequest = async (correctionId, { content, author }) => {
 
   return response.json()
 }
+
+export const deleteCommentRequest = async (correctionId, commentId) => {
+  const { apiUrl, nonce } = getCorrectionsApiConfig()
+
+  if (!apiUrl || !nonce) {
+    throw new Error('Brakuje konfiguracji REST API.')
+  }
+
+  const response = await fetch(`${apiUrl}/${correctionId}/comments/${commentId}`, {
+    method: 'DELETE',
+
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-WP-Nonce': nonce,
+    },
+
+    body: JSON.stringify({
+      nonce,
+    }),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null)
+
+    throw new Error(errorData?.message ?? 'Nie udało się usunąć komentarza.')
+  }
+
+  return response.json()
+}

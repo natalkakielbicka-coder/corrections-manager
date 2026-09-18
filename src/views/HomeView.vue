@@ -23,6 +23,7 @@ const REFRESH_INTERVAL = 15_000
 let correctionsRefreshIntervalId = null
 
 const isSubmittingCorrectionForm = ref(false)
+const isDeletingCorrection = ref(false)
 
 const refreshCorrectionsIfPossible = () => {
   const hasOpenModal =
@@ -257,9 +258,11 @@ const closeDeleteModal = () => {
 }
 
 const confirmDeleteCorrection = async () => {
-  if (!correctionToDelete.value) {
+  if (!correctionToDelete.value || isDeletingCorrection.value) {
     return
   }
+
+  isDeletingCorrection.value = true
 
   try {
     await deleteCorrection(correctionToDelete.value.id)
@@ -270,6 +273,8 @@ const confirmDeleteCorrection = async () => {
     console.error(error)
 
     showToast(error.message || 'Nie udało się usunąć poprawki', 'delete')
+  } finally {
+    isDeletingCorrection.value = false
   }
 }
 
@@ -410,6 +415,7 @@ const confirmDeleteComment = async () => {
     <DeleteCorrectionModal
       v-if="correctionToDelete"
       :correction-title="correctionToDelete.title"
+      :is-deleting="isDeletingCorrection"
       @close="closeDeleteModal"
       @confirm="confirmDeleteCorrection"
     />

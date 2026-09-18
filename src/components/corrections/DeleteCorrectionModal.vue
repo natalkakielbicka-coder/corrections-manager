@@ -6,6 +6,10 @@ defineProps({
     type: String,
     required: true,
   },
+  isDeleting: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['close', 'confirm'])
@@ -32,8 +36,13 @@ const emit = defineEmits(['close', 'confirm'])
           Anuluj
         </button>
 
-        <button class="button button--danger" type="button" @click="emit('confirm')">
-          Usuń poprawkę
+        <button
+          class="button button--danger"
+          type="button"
+          :disabled="isDeleting"
+          @click="emit('confirm')"
+        >
+          {{ isDeleting ? 'Usuwanie...' : 'Usuń poprawkę' }}
         </button>
       </div>
     </template>

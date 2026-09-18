@@ -24,6 +24,7 @@ let correctionsRefreshIntervalId = null
 
 const isSubmittingCorrectionForm = ref(false)
 const isDeletingCorrection = ref(false)
+const isDeletingComment = ref(false)
 
 const refreshCorrectionsIfPossible = () => {
   const hasOpenModal =
@@ -303,7 +304,9 @@ const closeDeleteCommentModal = () => {
 }
 
 const confirmDeleteComment = async () => {
-  if (!commentToDelete.value) return
+  if (!commentToDelete.value || isDeletingComment.value) return
+
+  isDeletingComment.value = true
 
   try {
     await deleteComment({
@@ -317,6 +320,8 @@ const confirmDeleteComment = async () => {
     console.error(error)
 
     showToast(error.message || 'Nie udało się usunąć komentarza', 'delete')
+  } finally {
+    isDeletingComment.value = false
   }
 }
 </script>
@@ -423,6 +428,7 @@ const confirmDeleteComment = async () => {
     <DeleteCommentModal
       v-if="commentToDelete"
       :comment-content="commentToDelete.content"
+      :is-deleting="isDeletingComment"
       @close="closeDeleteCommentModal"
       @confirm="confirmDeleteComment"
     />

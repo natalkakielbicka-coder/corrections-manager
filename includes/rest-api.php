@@ -457,7 +457,7 @@ function corrections_manager_create_correction(
     $inserted = $wpdb->insert(
         $table_name,
         [
-            'correction_number' => $last_number + 1,
+            'correction_number' => 0,
             'title' => $request->get_param('title'),
             'description' => $request->get_param('description'),
             'page_id' => $page_id,
@@ -496,10 +496,48 @@ function corrections_manager_create_correction(
 
     $correction_id = (int) $wpdb->insert_id;
 
+    $number_updated = $wpdb->update(
+    $table_name,
+        [
+            'correction_number' => $correction_id,
+        ],
+        [
+            'id' => $correction_id,
+        ],
+        [
+            '%d',
+        ],
+        [
+            '%d',
+        ]
+    );
+
+    if (false === $number_updated) {
+        $wpdb->delete(
+            $table_name,
+            [
+                'id' => $correction_id,
+            ],
+            [
+                '%d',
+            ]
+        );
+
+        if ($image_id) {
+            wp_delete_attachment($image_id, true);
+        }
+
+        return new WP_Error(
+            'corrections_manager_number_update_failed',
+            'Nie udało się nadać numeru poprawce.',
+            ['status' => 500]
+        );
+    }
+
     return new WP_REST_Response(
         [
             'id' => $correction_id,
-            'number' => $last_number + 1,
+            'number' => $correction_id,
             'title' => $request->get_param('title'),
             'description' => $request->get_param('description'),
             'pageId' => $page_id,

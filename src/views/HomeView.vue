@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import ProjectHeader from '../components/project/ProjectHeader.vue'
 import CorrectionsTabs from '../components/corrections/CorrectionsTabs.vue'
 import CorrectionsList from '../components/corrections/CorrectionsList.vue'
@@ -14,6 +14,29 @@ import { useToast } from '../composables/useToast'
 import { correctionStatuses } from '../constants/correctionStatuses'
 import UserEntryScreen from '../components/UserEntryScreen.vue'
 
+const REFRESH_INTERVAL = 15_000
+
+let correctionsRefreshIntervalId = null
+
+const refreshCorrectionsIfPossible = () => {
+  const hasOpenModal =
+    isCorrectionFormOpen.value ||
+    Boolean(correctionToDelete.value) ||
+    Boolean(commentToDelete.value)
+
+  if (document.visibilityState !== 'visible' || hasOpenModal) {
+    return
+  }
+
+  refreshCorrections()
+}
+
+const handleVisibilityChange = () => {
+  if (document.visibilityState === 'visible') {
+    refreshCorrectionsIfPossible()
+  }
+}
+
 const {
   sortedCorrections,
   addCorrection,
@@ -24,11 +47,24 @@ const {
   deleteComment,
   isLoading,
   loadCorrections,
+  refreshCorrections,
 } = useCorrections()
 
 onMounted(() => {
   loadCorrections()
   loadPages()
+
+  correctionsRefreshIntervalId = window.setInterval(refreshCorrectionsIfPossible, REFRESH_INTERVAL)
+
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+})
+
+onUnmounted(() => {
+  if (correctionsRefreshIntervalId) {
+    window.clearInterval(correctionsRefreshIntervalId)
+  }
+
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 
 const { pages, loadPages } = usePages()

@@ -23,6 +23,14 @@ export const useCorrections = () => {
     }
   }
 
+  const refreshCorrections = async () => {
+    try {
+      corrections.value = await fetchCorrections()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   const sortedCorrections = computed(() => {
     const correctionsCopy = [...corrections.value]
 
@@ -124,5 +132,6 @@ export const useCorrections = () => {
     updateCorrection,
     isLoading,
     loadCorrections,
+    refreshCorrections,
   }
 }

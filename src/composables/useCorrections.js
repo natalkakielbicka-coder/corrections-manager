@@ -51,8 +51,6 @@ export const useCorrections = () => {
   }
 
   const updateCorrection = async (correctionId, correctionData) => {
-    const updatedCorrection = await updateCorrectionRequest(correctionId, correctionData)
-
     const correction = corrections.value.find((correctionItem) => {
       return correctionItem.id === correctionId
     })
@@ -60,6 +58,11 @@ export const useCorrections = () => {
     if (!correction) {
       return
     }
+
+    const updatedCorrection = await updateCorrectionRequest(correctionId, {
+      ...correctionData,
+      expectedUpdatedAt: correction.updatedAt,
+    })
 
     Object.assign(correction, updatedCorrection)
 

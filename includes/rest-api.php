@@ -80,6 +80,9 @@ function corrections_manager_register_rest_routes(): void
                     'required' => true,
                     'sanitize_callback' => 'absint',
                 ],
+                'expectedUpdatedAt' => [
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
             ],
         ]
     );
@@ -366,7 +369,7 @@ function corrections_manager_update_correction(
 
     $existing_correction = $wpdb->get_row(
         $wpdb->prepare(
-            "SELECT id
+            "SELECT id, updated_at
             FROM {$table_name}
             WHERE id = %d",
             $correction_id
@@ -378,6 +381,21 @@ function corrections_manager_update_correction(
             'corrections_manager_not_found',
             'Nie znaleziono poprawki.',
             ['status' => 404]
+        );
+    }
+
+    $current_updated_at =
+    $existing_correction->updated_at ?: null;
+
+    $expected_updated_at =
+        $request->get_param('expectedUpdatedAt')
+        ?: null;
+
+    if ($current_updated_at !== $expected_updated_at) {
+        return new WP_Error(
+            'corrections_manager_edit_conflict',
+            'Ta poprawka została zmieniona przez inną osobę. Zamknij formularz i otwórz go ponownie.',
+            ['status' => 409]
         );
     }
 

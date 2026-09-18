@@ -81,6 +81,7 @@ export const updateCorrectionRequest = async (correctionId, correctionData) => {
       title: correctionData.title,
       description: correctionData.description,
       pageId: correctionData.pageId,
+      expectedUpdatedAt: correctionData.expectedUpdatedAt,
       nonce,
     }),
   })

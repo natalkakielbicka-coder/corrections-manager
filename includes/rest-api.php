@@ -746,16 +746,16 @@ function corrections_manager_delete_correction(
         $request->get_param('id')
     );
 
-    $correction_exists = $wpdb->get_var(
+    $existing_correction = $wpdb->get_row(
         $wpdb->prepare(
-            "SELECT id
+            "SELECT id, image_id
             FROM {$corrections_table}
             WHERE id = %d",
             $correction_id
         )
     );
 
-    if (! $correction_exists) {
+    if (! $existing_correction) {
         return new WP_Error(
             'corrections_manager_not_found',
             'Nie znaleziono poprawki.',
@@ -797,6 +797,17 @@ function corrections_manager_delete_correction(
             'Nie udało się usunąć poprawki.',
             ['status' => 500]
         );
+    }
+
+    $image_id = $existing_correction->image_id
+        ? (int) $existing_correction->image_id
+        : null;
+
+    if (
+        $image_id
+        && get_post_meta($image_id, '_corrections_manager_upload', true)
+    ) {
+        wp_delete_attachment($image_id, true);
     }
 
     return rest_ensure_response(

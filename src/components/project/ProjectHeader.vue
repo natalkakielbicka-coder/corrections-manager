@@ -4,6 +4,10 @@ defineProps({
     type: String,
     required: true,
   },
+  canChangeUser: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 defineEmits(['add-correction', 'change-user'])
@@ -32,7 +36,12 @@ defineEmits(['add-correction', 'change-user'])
           <strong>{{ currentUserName }}</strong>
         </div>
 
-        <button class="project-board__change-user" type="button" @click="$emit('change-user')">
+        <button
+          v-if="canChangeUser"
+          class="project-board__change-user"
+          type="button"
+          @click="$emit('change-user')"
+        >
           Zmień
         </button>
       </div>

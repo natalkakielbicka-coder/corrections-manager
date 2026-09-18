@@ -33,7 +33,8 @@ onMounted(() => {
 
 const { pages, loadPages } = usePages()
 
-const { currentUserName, hasCurrentUser, setCurrentUser, clearCurrentUser } = useCurrentUser()
+const { currentUserName, hasCurrentUser, setCurrentUser, clearCurrentUser, isWordPressUser } =
+  useCurrentUser()
 
 const { showToast } = useToast()
 
@@ -253,6 +254,7 @@ const confirmDeleteComment = () => {
     <section class="project-board">
       <ProjectHeader
         :current-user-name="currentUserName"
+        :can-change-user="!isWordPressUser"
         @add-correction="openCorrectionForm"
         @change-user="clearCurrentUser"
       />

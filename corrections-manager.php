@@ -37,6 +37,12 @@ function corrections_manager_render_app(): string
 
     $rest_nonce = wp_create_nonce('wp_rest');
 
+    $current_user = wp_get_current_user();
+
+    $current_user_name = is_user_logged_in()
+        ? $current_user->display_name
+        : '';
+
     return sprintf(
         '<div
             id="corrections-manager-app"
@@ -44,13 +50,15 @@ function corrections_manager_render_app(): string
             data-pages-url="%s"
             data-current-page-id="%d"
             data-rest-nonce="%s"
+            data-current-user-name="%s"
         >
             <p>Ładowanie panelu poprawek...</p>
         </div>',
         esc_url($corrections_url),
         esc_url($pages_url),
         absint($current_page_id),
-        esc_attr($rest_nonce)
+        esc_attr($rest_nonce),
+        esc_attr($current_user_name)
     );
 }
 

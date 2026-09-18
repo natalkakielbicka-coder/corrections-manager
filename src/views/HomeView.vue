@@ -28,13 +28,23 @@ const isDeletingComment = ref(false)
 const updatingStatusCorrectionIds = ref([])
 const addingCommentCorrectionIds = ref([])
 
+const hasPendingMutation = computed(() => {
+  return (
+    isSubmittingCorrectionForm.value ||
+    isDeletingCorrection.value ||
+    isDeletingComment.value ||
+    updatingStatusCorrectionIds.value.length > 0 ||
+    addingCommentCorrectionIds.value.length > 0
+  )
+})
+
 const refreshCorrectionsIfPossible = () => {
   const hasOpenModal =
     isCorrectionFormOpen.value ||
     Boolean(correctionToDelete.value) ||
     Boolean(commentToDelete.value)
 
-  if (document.visibilityState !== 'visible' || hasOpenModal) {
+  if (document.visibilityState !== 'visible' || hasOpenModal || hasPendingMutation.value) {
     return
   }
 

@@ -136,6 +136,29 @@ function corrections_manager_register_rest_routes(): void
             ],
         ]
     );
+
+        register_rest_route(
+        'corrections-manager/v1',
+        '/corrections/(?P<id>\d+)/comments',
+        [
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => 'corrections_manager_add_comment',
+            'permission_callback' => 'corrections_manager_verify_nonce',
+            'args' => [
+                'id' => [
+                    'sanitize_callback' => 'absint',
+                ],
+                'content' => [
+                    'required' => true,
+                    'sanitize_callback' => 'sanitize_textarea_field',
+                ],
+                'author' => [
+                    'required' => true,
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+            ],
+        ]
+    );
 }
 
 add_action(
@@ -815,5 +838,81 @@ function corrections_manager_delete_correction(
             'id' => $correction_id,
             'deleted' => true,
         ]
+    );
+}
+
+/**
+ * Dodaje komentarz do poprawki.
+ *
+ * @param WP_REST_Request $request Dane żądania.
+ *
+ * @return WP_REST_Response|WP_Error
+ */
+function corrections_manager_add_comment(
+    WP_REST_Request $request
+) {
+    global $wpdb;
+
+    $corrections_table =
+        $wpdb->prefix . 'corrections_manager_corrections';
+
+    $comments_table =
+        $wpdb->prefix . 'corrections_manager_comments';
+
+    $correction_id = absint(
+        $request->get_param('id')
+    );
+
+    $correction_exists = $wpdb->get_var(
+        $wpdb->prepare(
+            "SELECT id
+            FROM {$corrections_table}
+            WHERE id = %d",
+            $correction_id
+        )
+    );
+
+    if (! $correction_exists) {
+        return new WP_Error(
+            'corrections_manager_not_found',
+            'Nie znaleziono poprawki.',
+            ['status' => 404]
+        );
+    }
+
+    $created_at = current_time('mysql', true);
+
+    $inserted = $wpdb->insert(
+        $comments_table,
+        [
+            'correction_id' => $correction_id,
+            'author' => $request->get_param('author'),
+            'content' => $request->get_param('content'),
+            'created_at' => $created_at,
+        ],
+        [
+            '%d',
+            '%s',
+            '%s',
+            '%s',
+        ]
+    );
+
+    if (false === $inserted) {
+        return new WP_Error(
+            'corrections_manager_comment_failed',
+            'Nie udało się dodać komentarza.',
+            ['status' => 500]
+        );
+    }
+
+    return new WP_REST_Response(
+        [
+            'id' => (int) $wpdb->insert_id,
+            'author' => $request->get_param('author'),
+            'content' => $request->get_param('content'),
+            'createdAt' => $created_at,
+        ],
+        201
     );
 }

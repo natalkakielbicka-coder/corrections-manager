@@ -162,3 +162,35 @@ export const deleteCorrectionRequest = async (correctionId) => {
 
   return response.json()
 }
+
+export const addCommentRequest = async (correctionId, { content, author }) => {
+  const { apiUrl, nonce } = getCorrectionsApiConfig()
+
+  if (!apiUrl || !nonce) {
+    throw new Error('Brakuje konfiguracji REST API.')
+  }
+
+  const response = await fetch(`${apiUrl}/${correctionId}/comments`, {
+    method: 'POST',
+
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-WP-Nonce': nonce,
+    },
+
+    body: JSON.stringify({
+      content,
+      author,
+      nonce,
+    }),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null)
+
+    throw new Error(errorData?.message ?? 'Nie udało się dodać komentarza.')
+  }
+
+  return response.json()
+}

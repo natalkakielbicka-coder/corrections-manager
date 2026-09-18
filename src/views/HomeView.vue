@@ -199,14 +199,20 @@ const handleCorrectionSubmit = async (correctionData) => {
   }
 }
 
-const handleAddComment = ({ correctionId, content }) => {
-  addComment({
-    correctionId,
-    content,
-    author: currentUserName.value,
-  })
+const handleAddComment = async ({ correctionId, content }) => {
+  try {
+    await addComment({
+      correctionId,
+      content,
+      author: currentUserName.value,
+    })
 
-  showToast('Dodano komentarz')
+    showToast('Dodano komentarz')
+  } catch (error) {
+    console.error(error)
+
+    showToast(error.message || 'Nie udało się dodać komentarza', 'delete')
+  }
 }
 
 const handleStatusUpdate = async ({ correctionId, status }) => {

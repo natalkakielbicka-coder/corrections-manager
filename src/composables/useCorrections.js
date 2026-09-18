@@ -5,6 +5,7 @@ import {
   updateCorrectionRequest,
   updateCorrectionStatusRequest,
   deleteCorrectionRequest,
+  addCommentRequest,
 } from '../api/correctionsApi'
 import { correctionStatuses } from '../constants/correctionStatuses'
 
@@ -70,19 +71,21 @@ export const useCorrections = () => {
     return updatedCorrection
   }
 
-  const addComment = ({ correctionId, content, author }) => {
+  const addComment = async ({ correctionId, content, author }) => {
     const correction = corrections.value.find((correctionItem) => {
       return correctionItem.id === correctionId
     })
 
     if (!correction) return
 
-    correction.comments.push({
-      id: Date.now(),
-      author,
+    const newComment = await addCommentRequest(correctionId, {
       content,
-      createdAt: new Date().toISOString(),
+      author,
     })
+
+    correction.comments.push(newComment)
+
+    return newComment
   }
 
   const deleteComment = ({ correctionId, commentId }) => {

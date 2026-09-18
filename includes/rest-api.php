@@ -287,6 +287,91 @@ function corrections_manager_create_correction(
         $request->get_param('pageId')
     );
 
+    $image_id = null;
+
+    $files = $request->get_file_params();
+
+    if (! empty($files['image'])) {
+        $image = $files['image'];
+
+        if (UPLOAD_ERR_OK !== $image['error']) {
+            return new WP_Error(
+                'corrections_manager_upload_error',
+                'Nie udało się przesłać obrazu.',
+                ['status' => 400]
+            );
+        }
+
+        $max_image_size = 5 * 1024 * 1024;
+
+        if ($image['size'] > $max_image_size) {
+            return new WP_Error(
+                'corrections_manager_image_too_large',
+                'Obraz nie może być większy niż 5 MB.',
+                ['status' => 400]
+            );
+        }
+
+        $allowed_mime_types = [
+            'jpg|jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'webp' => 'image/webp',
+        ];
+
+        $checked_file = wp_check_filetype_and_ext(
+            $image['tmp_name'],
+            $image['name'],
+            $allowed_mime_types
+        );
+
+        if (
+            empty($checked_file['ext'])
+            || empty($checked_file['type'])
+        ) {
+            return new WP_Error(
+                'corrections_manager_invalid_image',
+                'Dozwolone są tylko obrazy JPG, PNG i WebP.',
+                ['status' => 400]
+            );
+        }
+
+        require_once ABSPATH
+            . 'wp-admin/includes/file.php';
+
+        require_once ABSPATH
+            . 'wp-admin/includes/media.php';
+
+        require_once ABSPATH
+            . 'wp-admin/includes/image.php';
+
+        $image_id = media_handle_upload(
+            'image',
+            0,
+            [
+                'post_title' => $request->get_param(
+                    'title'
+                ),
+            ],
+            [
+                'test_form' => false,
+            ]
+        );
+
+        if (is_wp_error($image_id)) {
+            return new WP_Error(
+                'corrections_manager_image_save_failed',
+                $image_id->get_error_message(),
+                ['status' => 400]
+            );
+        }
+
+        update_post_meta(
+            $image_id,
+            '_corrections_manager_upload',
+            1
+        );
+    }
+
     if (
         'page' !== get_post_type($page_id)
         || 'publish' !== get_post_status($page_id)
@@ -314,7 +399,7 @@ function corrections_manager_create_correction(
             'page_id' => $page_id,
             'status' => 'inProgress',
             'author' => $request->get_param('author'),
-            'image_id' => null,
+            'image_id' => $image_id,
             'is_new' => 1,
             'created_at' => $created_at,
             'updated_at' => null,
@@ -334,6 +419,10 @@ function corrections_manager_create_correction(
     );
 
     if (false === $inserted) {
+        if ($image_id) {
+            wp_delete_attachment($image_id, true);
+        }
+
         return new WP_Error(
             'corrections_manager_insert_failed',
             'Nie udało się zapisać poprawki.',
@@ -352,8 +441,12 @@ function corrections_manager_create_correction(
             'pageId' => $page_id,
             'status' => 'inProgress',
             'author' => $request->get_param('author'),
-            'imageId' => null,
-            'imageUrl' => '',
+            'imageId' => $image_id
+                ? (int) $image_id
+                : null,
+            'imageUrl' => $image_id
+                ? wp_get_attachment_url($image_id)
+                : '',
             'isNew' => true,
             'createdAt' => $created_at,
             'updatedAt' => null,

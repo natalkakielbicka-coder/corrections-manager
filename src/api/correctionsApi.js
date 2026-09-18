@@ -34,22 +34,27 @@ export const createCorrection = async (correctionData) => {
     throw new Error('Brakuje konfiguracji REST API.')
   }
 
+  const formData = new FormData()
+
+  formData.append('title', correctionData.title)
+  formData.append('description', correctionData.description)
+  formData.append('pageId', String(correctionData.pageId))
+  formData.append('author', correctionData.author)
+  formData.append('nonce', nonce)
+
+  if (correctionData.imageFile) {
+    formData.append('image', correctionData.imageFile)
+  }
+
   const response = await fetch(apiUrl, {
     method: 'POST',
 
     headers: {
       Accept: 'application/json',
-      'Content-Type': 'application/json',
       'X-WP-Nonce': nonce,
     },
 
-    body: JSON.stringify({
-      title: correctionData.title,
-      description: correctionData.description,
-      pageId: correctionData.pageId,
-      author: correctionData.author,
-      nonce,
-    }),
+    body: formData,
   })
 
   if (!response.ok) {

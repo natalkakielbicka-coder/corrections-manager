@@ -28,6 +28,8 @@ const formData = reactive({
 
 const imageInput = ref(null)
 
+const imageFile = ref(null)
+
 const imageError = ref('')
 
 const allowedImageTypes = ['image/jpeg', 'image/png', 'image/webp']
@@ -36,6 +38,7 @@ const maxImageSize = 5 * 1024 * 1024
 
 const removeImage = () => {
   formData.imageUrl = ''
+  imageFile.value = null
   imageError.value = ''
 
   if (imageInput.value) {
@@ -62,6 +65,8 @@ const handleImageChange = (event) => {
     return
   }
 
+  imageFile.value = file
+
   const reader = new FileReader()
 
   reader.addEventListener('load', () => {
@@ -69,6 +74,7 @@ const handleImageChange = (event) => {
   })
 
   reader.addEventListener('error', () => {
+    imageFile.value = null
     imageError.value = 'Nie udało się odczytać obrazu.'
   })
 
@@ -80,7 +86,10 @@ const submitForm = () => {
 
   if (!selectedPage) return
 
-  emit('submit', { ...formData })
+  emit('submit', {
+    ...formData,
+    imageFile: imageFile.value,
+  })
 }
 </script>
 

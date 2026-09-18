@@ -1,3 +1,13 @@
+const handleApiError = async (response, fallbackMessage) => {
+  if (response.status === 403) {
+    throw new Error('Sesja wygasła. Odśwież stronę i spróbuj ponownie.')
+  }
+
+  const errorData = await response.json().catch(() => null)
+
+  throw new Error(errorData?.message ?? fallbackMessage)
+}
+
 const getCorrectionsApiConfig = () => {
   const appElement = document.querySelector('#corrections-manager-app')
 
@@ -56,8 +66,7 @@ export const createCorrection = async (correctionData) => {
   })
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => null)
-    throw new Error(errorData?.message ?? 'Nie udało się zapisać poprawki.')
+    await handleApiError(response, 'Nie udało się zapisać poprawki.')
   }
 
   return response.json()
@@ -94,9 +103,7 @@ export const updateCorrectionRequest = async (correctionId, correctionData) => {
   })
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => null)
-
-    throw new Error(errorData?.message ?? 'Nie udało się zapisać zmian.')
+    await handleApiError(response, 'Nie udało się zapisać zmian.')
   }
 
   return response.json()
@@ -125,9 +132,7 @@ export const updateCorrectionStatusRequest = async (correctionId, status) => {
   })
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => null)
-
-    throw new Error(errorData?.message ?? 'Nie udało się zmienić statusu.')
+    await handleApiError(response, 'Nie udało się zmienić statusu.')
   }
 
   return response.json()
@@ -155,9 +160,7 @@ export const deleteCorrectionRequest = async (correctionId) => {
   })
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => null)
-
-    throw new Error(errorData?.message ?? 'Nie udało się usunąć poprawki.')
+    await handleApiError(response, 'Nie udało się usunąć poprawki.')
   }
 
   return response.json()
@@ -187,9 +190,7 @@ export const addCommentRequest = async (correctionId, { content, author }) => {
   })
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => null)
-
-    throw new Error(errorData?.message ?? 'Nie udało się dodać komentarza.')
+    await handleApiError(response, 'Nie udało się dodać komentarza.')
   }
 
   return response.json()
@@ -217,9 +218,7 @@ export const deleteCommentRequest = async (correctionId, commentId) => {
   })
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => null)
-
-    throw new Error(errorData?.message ?? 'Nie udało się usunąć komentarza.')
+    await handleApiError(response, 'Nie udało się usunąć komentarza.')
   }
 
   return response.json()

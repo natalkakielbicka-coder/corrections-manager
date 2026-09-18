@@ -125,3 +125,33 @@ export const updateCorrectionStatusRequest = async (correctionId, status) => {
 
   return response.json()
 }
+
+export const deleteCorrectionRequest = async (correctionId) => {
+  const { apiUrl, nonce } = getCorrectionsApiConfig()
+
+  if (!apiUrl || !nonce) {
+    throw new Error('Brakuje konfiguracji REST API.')
+  }
+
+  const response = await fetch(`${apiUrl}/${correctionId}`, {
+    method: 'DELETE',
+
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-WP-Nonce': nonce,
+    },
+
+    body: JSON.stringify({
+      nonce,
+    }),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null)
+
+    throw new Error(errorData?.message ?? 'Nie udało się usunąć poprawki.')
+  }
+
+  return response.json()
+}

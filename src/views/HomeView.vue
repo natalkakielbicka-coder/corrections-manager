@@ -242,12 +242,21 @@ const closeDeleteModal = () => {
   correctionToDelete.value = null
 }
 
-const confirmDeleteCorrection = () => {
-  if (!correctionToDelete.value) return
+const confirmDeleteCorrection = async () => {
+  if (!correctionToDelete.value) {
+    return
+  }
 
-  deleteCorrection(correctionToDelete.value.id)
-  closeDeleteModal()
-  showToast('Usunięto poprawkę', 'delete')
+  try {
+    await deleteCorrection(correctionToDelete.value.id)
+
+    closeDeleteModal()
+    showToast('Usunięto poprawkę', 'delete')
+  } catch (error) {
+    console.error(error)
+
+    showToast(error.message || 'Nie udało się usunąć poprawki', 'delete')
+  }
 }
 
 const openDeleteCommentModal = ({ correctionId, commentId }) => {

@@ -118,6 +118,21 @@ function corrections_manager_register_rest_routes(): void
             ],
         ]
     );
+
+    register_rest_route(
+        'corrections-manager/v1',
+        '/corrections/(?P<id>\d+)',
+        [
+            'methods' => WP_REST_Server::DELETABLE,
+            'callback' => 'corrections_manager_delete_correction',
+            'permission_callback' => 'corrections_manager_verify_nonce',
+            'args' => [
+                'id' => [
+                    'sanitize_callback' => 'absint',
+                ],
+            ],
+        ]
+    );
 }
 
 add_action(
@@ -535,6 +550,89 @@ function corrections_manager_update_status(
             'status' => $status,
             'isNew' => false,
             'updatedAt' => $updated_at,
+        ]
+    );
+}
+
+/**
+ * Usuwa poprawkę wraz z jej komentarzami.
+ *
+ * @param WP_REST_Request $request Dane żądania.
+ *
+ * @return WP_REST_Response|WP_Error
+ */
+function corrections_manager_delete_correction(
+    WP_REST_Request $request
+) {
+    global $wpdb;
+
+    $corrections_table =
+        $wpdb->prefix . 'corrections_manager_corrections';
+
+    $comments_table =
+        $wpdb->prefix . 'corrections_manager_comments';
+
+    $correction_id = absint(
+        $request->get_param('id')
+    );
+
+    $correction_exists = $wpdb->get_var(
+        $wpdb->prepare(
+            "SELECT id
+            FROM {$corrections_table}
+            WHERE id = %d",
+            $correction_id
+        )
+    );
+
+    if (! $correction_exists) {
+        return new WP_Error(
+            'corrections_manager_not_found',
+            'Nie znaleziono poprawki.',
+            ['status' => 404]
+        );
+    }
+
+    $comments_deleted = $wpdb->delete(
+        $comments_table,
+        [
+            'correction_id' => $correction_id,
+        ],
+        [
+            '%d',
+        ]
+    );
+
+    if (false === $comments_deleted) {
+        return new WP_Error(
+            'corrections_manager_comments_delete_failed',
+            'Nie udało się usunąć komentarzy poprawki.',
+            ['status' => 500]
+        );
+    }
+
+    $correction_deleted = $wpdb->delete(
+        $corrections_table,
+        [
+            'id' => $correction_id,
+        ],
+        [
+            '%d',
+        ]
+    );
+
+    if (false === $correction_deleted) {
+        return new WP_Error(
+            'corrections_manager_delete_failed',
+            'Nie udało się usunąć poprawki.',
+            ['status' => 500]
+        );
+    }
+
+    return rest_ensure_response(
+        [
+            'id' => $correction_id,
+            'deleted' => true,
         ]
     );
 }

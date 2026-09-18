@@ -4,6 +4,7 @@ import {
   createCorrection,
   updateCorrectionRequest,
   updateCorrectionStatusRequest,
+  deleteCorrectionRequest,
 } from '../api/correctionsApi'
 import { correctionStatuses } from '../constants/correctionStatuses'
 
@@ -118,7 +119,9 @@ export const useCorrections = () => {
     return updatedCorrection
   }
 
-  const deleteCorrection = (correctionId) => {
+  const deleteCorrection = async (correctionId) => {
+    await deleteCorrectionRequest(correctionId)
+
     corrections.value = corrections.value.filter((correction) => {
       return correction.id !== correctionId
     })

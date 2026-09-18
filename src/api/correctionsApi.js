@@ -46,20 +46,17 @@ export const createCorrection = async (correctionData) => {
     formData.append('image', correctionData.imageFile)
   }
 
-  const response = await fetch(`${apiUrl}/${correctionId}`, {
-    method: 'PATCH',
-
+  const response = await fetch(apiUrl, {
+    method: 'POST',
     headers: {
       Accept: 'application/json',
       'X-WP-Nonce': nonce,
     },
-
     body: formData,
   })
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => null)
-
     throw new Error(errorData?.message ?? 'Nie udało się zapisać poprawki.')
   }
 
@@ -87,21 +84,13 @@ export const updateCorrectionRequest = async (correctionId, correctionData) => {
   }
 
   const response = await fetch(`${apiUrl}/${correctionId}`, {
-    method: 'PATCH',
-
+    method: 'POST',
     headers: {
       Accept: 'application/json',
-      'Content-Type': 'application/json',
       'X-WP-Nonce': nonce,
+      'X-HTTP-Method-Override': 'PATCH',
     },
-
-    body: JSON.stringify({
-      title: correctionData.title,
-      description: correctionData.description,
-      pageId: correctionData.pageId,
-      expectedUpdatedAt: correctionData.expectedUpdatedAt,
-      nonce,
-    }),
+    body: formData,
   })
 
   if (!response.ok) {

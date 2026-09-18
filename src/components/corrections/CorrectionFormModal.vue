@@ -103,7 +103,11 @@ const submitForm = () => {
 </script>
 
 <template>
-  <BaseModal :label="isEditing ? 'Edytuj poprawkę' : 'Dodaj poprawkę'" @close="emit('close')">
+  <BaseModal
+    :label="isEditing ? 'Edytuj poprawkę' : 'Dodaj poprawkę'"
+    :prevent-close="isSubmitting"
+    @close="emit('close')"
+  >
     <template #header>
       <h2 class="modal-title">
         {{ isEditing ? 'Edytuj poprawkę' : 'Dodaj poprawkę' }}
@@ -111,70 +115,77 @@ const submitForm = () => {
     </template>
 
     <form id="correction-form" class="correction-form" @submit.prevent="submitForm">
-      <div class="form-field">
-        <label for="correction-title">Tytuł poprawki</label>
+      <fieldset class="correction-form__fieldset" :disabled="isSubmitting">
+        <div class="form-field">
+          <label for="correction-title">Tytuł poprawki</label>
 
-        <input
-          id="correction-title"
-          v-model.trim="formData.title"
-          type="text"
-          placeholder="Np. Zmienić zdjęcie w nagłówku"
-          required
-        />
-      </div>
-
-      <div class="form-field">
-        <label for="correction-description">Opis poprawki</label>
-
-        <textarea
-          id="correction-description"
-          v-model.trim="formData.description"
-          rows="5"
-          placeholder="Opisz dokładnie, co należy poprawić..."
-          required
-        ></textarea>
-      </div>
-
-      <div class="form-field">
-        <label for="correction-page"> Strona </label>
-
-        <select id="correction-page" v-model.number="formData.pageId" required>
-          <option disabled value="">Wybierz stronę</option>
-
-          <option v-for="page in pages" :key="page.id" :value="page.id">
-            {{ page.title }}
-          </option>
-        </select>
-      </div>
-
-      <div class="form-field">
-        <label for="correction-image"> Zdjęcie lub zrzut ekranu </label>
-
-        <input
-          ref="imageInput"
-          id="correction-image"
-          type="file"
-          accept="image/png, image/jpeg, image/webp"
-          @change="handleImageChange"
-        />
-
-        <p class="form-field__hint">Dozwolone formaty: JPG, PNG i WebP.</p>
-
-        <p v-if="imageError" class="form-field__error" role="alert">
-          {{ imageError }}
-        </p>
-
-        <div v-if="formData.imageUrl" class="image-preview">
-          <img :src="formData.imageUrl" alt="Podgląd załączonego obrazu" />
-
-          <button type="button" @click="removeImage">Usuń zdjęcie</button>
+          <input
+            id="correction-title"
+            v-model.trim="formData.title"
+            type="text"
+            placeholder="Np. Zmienić zdjęcie w nagłówku"
+            required
+          />
         </div>
-      </div>
+
+        <div class="form-field">
+          <label for="correction-description">Opis poprawki</label>
+
+          <textarea
+            id="correction-description"
+            v-model.trim="formData.description"
+            rows="5"
+            placeholder="Opisz dokładnie, co należy poprawić..."
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-field">
+          <label for="correction-page"> Strona </label>
+
+          <select id="correction-page" v-model.number="formData.pageId" required>
+            <option disabled value="">Wybierz stronę</option>
+
+            <option v-for="page in pages" :key="page.id" :value="page.id">
+              {{ page.title }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="correction-image"> Zdjęcie lub zrzut ekranu </label>
+
+          <input
+            ref="imageInput"
+            id="correction-image"
+            type="file"
+            accept="image/png, image/jpeg, image/webp"
+            @change="handleImageChange"
+          />
+
+          <p class="form-field__hint">Dozwolone formaty: JPG, PNG i WebP.</p>
+
+          <p v-if="imageError" class="form-field__error" role="alert">
+            {{ imageError }}
+          </p>
+
+          <div v-if="formData.imageUrl" class="image-preview">
+            <img :src="formData.imageUrl" alt="Podgląd załączonego obrazu" />
+
+            <button type="button" @click="removeImage">Usuń zdjęcie</button>
+          </div>
+        </div>
+      </fieldset>
     </form>
 
     <template #footer>
       <div class="correction-form__actions">
-        <button class="button button--secondary" type="button" @click="emit('close')">
+        <button
+          class="button button--secondary"
+          type="button"
+          :disabled="isSubmitting"
+          @click="emit('close')"
+        >
           Anuluj
         </button>
 
@@ -292,6 +303,17 @@ const submitForm = () => {
   justify-content: flex-end;
   gap: 12px;
   margin-top: 28px;
+}
+
+.correction-form__fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.correction-form__fieldset:disabled {
+  opacity: 0.7;
 }
 
 .button {

@@ -6,6 +6,10 @@ defineProps({
     type: String,
     required: true,
   },
+  preventClose: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['close'])
@@ -15,8 +19,14 @@ let previouslyFocusedElement = null
 
 const handleKeydown = (event) => {
   if (event.key === 'Escape') {
-    emit('close')
+    requestClose()
   }
+}
+
+const requestClose = () => {
+  if (props.preventClose) return
+
+  emit('close')
 }
 
 let previousBodyOverflow = ''
@@ -51,7 +61,7 @@ onUnmounted(() => {
     tabindex="-1"
     aria-modal="true"
     :aria-label="label"
-    @click.self="emit('close')"
+    @click.self="requestClose"
   >
     <div class="modal__content">
       <header class="modal__header">

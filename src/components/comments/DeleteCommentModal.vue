@@ -16,7 +16,11 @@ const emit = defineEmits(['close', 'confirm'])
 </script>
 
 <template>
-  <BaseModal label="Potwierdź usunięcie komentarza" @close="emit('close')">
+  <BaseModal
+    label="Potwierdź usunięcie komentarza"
+    :prevent-close="isDeleting"
+    @close="emit('close')"
+  >
     <template #header>
       <h2 class="modal-title">Usunąć komentarz?</h2>
     </template>
@@ -29,7 +33,12 @@ const emit = defineEmits(['close', 'confirm'])
 
     <template #footer>
       <div class="delete-confirmation__actions">
-        <button class="button button--secondary" type="button" @click="emit('close')">
+        <button
+          class="button button--secondary"
+          type="button"
+          :disabled="isDeleting"
+          @click="emit('close')"
+        >
           Anuluj
         </button>
 

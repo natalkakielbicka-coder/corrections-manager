@@ -4,6 +4,10 @@ Wtyczka WordPress do zgłaszania i zarządzania poprawkami bezpośrednio na stro
 
 Interfejs został zbudowany w Vue 3 i Vite, natomiast poprawki, komentarze oraz informacje o edycji są przechowywane w bazie danych WordPressa.
 
+## Dashboard
+
+![Corrections Manager – lista poprawek](docs/screenshots/corrections-manager-dashboard.png)
+
 ---
 
 # Polski

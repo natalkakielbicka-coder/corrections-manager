@@ -12,7 +12,7 @@ if (! defined('ABSPATH')) {
 }
 
 define('CORRECTIONS_MANAGER_VERSION', '1.0.0');
-define('CORRECTIONS_MANAGER_DB_VERSION', '1.1.0');
+define('CORRECTIONS_MANAGER_DB_VERSION', '1.2.0');
 define('CORRECTIONS_MANAGER_FILE', __FILE__);
 define('CORRECTIONS_MANAGER_PATH', plugin_dir_path(__FILE__));
 define('CORRECTIONS_MANAGER_URL', plugin_dir_url(__FILE__));
@@ -160,6 +160,9 @@ function corrections_manager_activate(): void
         created_at datetime NOT NULL,
         updated_at datetime DEFAULT NULL,
         version bigint(20) unsigned NOT NULL DEFAULT 1,
+        editing_by varchar(150) DEFAULT NULL,
+        editing_token varchar(64) DEFAULT NULL,
+        editing_expires_at datetime DEFAULT NULL,
         PRIMARY KEY  (id),
         KEY correction_number (correction_number),
         KEY page_id (page_id),

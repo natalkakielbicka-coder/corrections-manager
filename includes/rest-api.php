@@ -182,6 +182,45 @@ function corrections_manager_register_rest_routes(): void
             ],
         ]
     );
+
+    register_rest_route(
+        'corrections-manager/v1',
+        '/corrections/(?P<id>\d+)/editing',
+        [
+            [
+                'methods' => WP_REST_Server::CREATABLE,
+                'callback' => 'corrections_manager_start_editing',
+                'permission_callback' => 'corrections_manager_verify_nonce',
+                'args' => [
+                    'id' => [
+                        'sanitize_callback' => 'absint',
+                    ],
+                    'editor' => [
+                        'required' => true,
+                        'sanitize_callback' => 'sanitize_text_field',
+                    ],
+                    'token' => [
+                        'required' => true,
+                        'sanitize_callback' => 'sanitize_text_field',
+                    ],
+                ],
+            ],
+            [
+                'methods' => WP_REST_Server::DELETABLE,
+                'callback' => 'corrections_manager_stop_editing',
+                'permission_callback' => 'corrections_manager_verify_nonce',
+                'args' => [
+                    'id' => [
+                        'sanitize_callback' => 'absint',
+                    ],
+                    'token' => [
+                        'required' => true,
+                        'sanitize_callback' => 'sanitize_text_field',
+                    ],
+                ],
+            ],
+        ]
+    );
 }
 
 add_action(
@@ -224,6 +263,18 @@ function corrections_manager_get_corrections(): WP_REST_Response
         ];
     }
 
+    $editing_by = null;
+    $editing_expires_at = null;
+
+    if (
+        ! empty($correction['editing_expires_at'])
+        && strtotime($correction['editing_expires_at']) > time()
+    ) {
+        $editing_by = $correction['editing_by'];
+        $editing_expires_at =
+            $correction['editing_expires_at'];
+    }
+
     $response = [];
 
     foreach ($corrections as $correction) {
@@ -248,6 +299,8 @@ function corrections_manager_get_corrections(): WP_REST_Response
             'createdAt' => $correction['created_at'],
             'updatedAt' => $correction['updated_at'],
             'version' => (int) $correction['version'],
+            'editingBy' => $editing_by,
+            'editingExpiresAt' => $editing_expires_at,
             'comments' => $comments_by_correction[$correction_id] ?? [],
         ];
     }
@@ -1081,6 +1134,181 @@ function corrections_manager_delete_comment(
         [
             'id' => $comment_id,
             'deleted' => true,
+        ]
+    );
+}
+
+function corrections_manager_get_editor_name(
+    WP_REST_Request $request
+): string {
+    if (is_user_logged_in()) {
+        $current_user = wp_get_current_user();
+
+        return sanitize_text_field(
+            $current_user->display_name
+        );
+    }
+
+    return sanitize_text_field(
+        $request->get_param('editor')
+    );
+}
+
+function corrections_manager_start_editing(
+    WP_REST_Request $request
+) {
+    global $wpdb;
+
+    $table_name =
+        $wpdb->prefix . 'corrections_manager_corrections';
+
+    $correction_id = absint(
+        $request->get_param('id')
+    );
+
+    $token = sanitize_text_field(
+        $request->get_param('token')
+    );
+
+    $editor = corrections_manager_get_editor_name(
+        $request
+    );
+
+    if (! $editor || ! $token) {
+        return new WP_Error(
+            'corrections_manager_invalid_editor',
+            'Nie udało się ustalić osoby edytującej.',
+            ['status' => 400]
+        );
+    }
+
+    $now = current_time('mysql', true);
+
+    $expires_at = gmdate(
+        'Y-m-d H:i:s',
+        time() + 90
+    );
+
+    $updated = $wpdb->query(
+        $wpdb->prepare(
+            "UPDATE {$table_name}
+            SET editing_by = %s,
+                editing_token = %s,
+                editing_expires_at = %s
+            WHERE id = %d
+            AND (
+                editing_expires_at IS NULL
+                OR editing_expires_at < %s
+                OR editing_token = %s
+            )",
+            $editor,
+            $token,
+            $expires_at,
+            $correction_id,
+            $now,
+            $token
+        )
+    );
+
+    if (false === $updated) {
+        return new WP_Error(
+            'corrections_manager_editing_failed',
+            'Nie udało się rozpocząć edycji.',
+            ['status' => 500]
+        );
+    }
+
+    if ($updated > 0) {
+        return rest_ensure_response(
+            [
+                'acquired' => true,
+                'editingBy' => $editor,
+                'editingExpiresAt' => $expires_at,
+            ]
+        );
+    }
+
+    $current_editor = $wpdb->get_row(
+        $wpdb->prepare(
+            "SELECT editing_by, editing_token, editing_expires_at
+            FROM {$table_name}
+            WHERE id = %d",
+            $correction_id
+        ),
+        ARRAY_A
+    );
+
+    if (! $current_editor) {
+        return new WP_Error(
+            'corrections_manager_not_found',
+            'Nie znaleziono poprawki.',
+            ['status' => 404]
+        );
+    }
+
+    if ($current_editor['editing_token'] === $token) {
+        return rest_ensure_response(
+            [
+                'acquired' => true,
+                'editingBy' => $editor,
+                'editingExpiresAt' =>
+                    $current_editor['editing_expires_at'],
+            ]
+        );
+    }
+
+    return rest_ensure_response(
+        [
+            'acquired' => false,
+            'editingBy' =>
+                $current_editor['editing_by'],
+            'editingExpiresAt' =>
+                $current_editor['editing_expires_at'],
+        ]
+    );
+}
+
+function corrections_manager_stop_editing(
+    WP_REST_Request $request
+) {
+    global $wpdb;
+
+    $table_name =
+        $wpdb->prefix . 'corrections_manager_corrections';
+
+    $correction_id = absint(
+        $request->get_param('id')
+    );
+
+    $token = sanitize_text_field(
+        $request->get_param('token')
+    );
+
+    $wpdb->update(
+        $table_name,
+        [
+            'editing_by' => null,
+            'editing_token' => null,
+            'editing_expires_at' => null,
+        ],
+        [
+            'id' => $correction_id,
+            'editing_token' => $token,
+        ],
+        [
+            '%s',
+            '%s',
+            '%s',
+        ],
+        [
+            '%d',
+            '%s',
+        ]
+    );
+
+    return rest_ensure_response(
+        [
+            'released' => true,
         ]
     );
 }

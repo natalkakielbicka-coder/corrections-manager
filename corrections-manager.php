@@ -12,7 +12,7 @@ if (! defined('ABSPATH')) {
 }
 
 define('CORRECTIONS_MANAGER_VERSION', '1.0.0');
-define('CORRECTIONS_MANAGER_DB_VERSION', '1.2.0');
+define('CORRECTIONS_MANAGER_DB_VERSION', '1.2.1');
 define('CORRECTIONS_MANAGER_FILE', __FILE__);
 define('CORRECTIONS_MANAGER_PATH', plugin_dir_path(__FILE__));
 define('CORRECTIONS_MANAGER_URL', plugin_dir_url(__FILE__));

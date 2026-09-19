@@ -14,6 +14,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  editingByOther: {
+    type: String,
+    default: '',
+  },
 })
 
 const { pages, getPageById } = usePages()
@@ -113,6 +117,16 @@ const submitForm = () => {
         {{ isEditing ? 'Edytuj poprawkę' : 'Dodaj poprawkę' }}
       </h2>
     </template>
+
+    <div v-if="isEditing && editingByOther" class="editing-warning" role="status">
+      <strong>{{ editingByOther }}</strong>
+      również edytuje tę poprawkę.
+
+      <span>
+        Możesz kontynuować, ale jeśli druga osoba zapisze wcześniej, Twoja wersja nie nadpisze jej
+        zmian.
+      </span>
+    </div>
 
     <form id="correction-form" class="correction-form" @submit.prevent="submitForm">
       <fieldset class="correction-form__fieldset" :disabled="isSubmitting">
@@ -341,6 +355,26 @@ const submitForm = () => {
 
 .button--secondary:hover {
   border-color: var(--color-muted);
+}
+
+.editing-warning {
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  border: 1px solid #fbbf24;
+  border-radius: 6px;
+  background-color: #fffbeb;
+  color: #92400e;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.editing-warning strong {
+  font-weight: 800;
+}
+
+.editing-warning span {
+  display: block;
+  margin-top: 2px;
 }
 
 @media (max-width: 479px) {

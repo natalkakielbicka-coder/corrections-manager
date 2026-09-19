@@ -224,3 +224,58 @@ export const deleteCommentRequest = async (correctionId, commentId) => {
 
   return response.json()
 }
+
+export const startCorrectionEditingRequest = async (correctionId, { editor, token }) => {
+  const { apiUrl, nonce } = getCorrectionsApiConfig()
+
+  if (!apiUrl || !nonce) {
+    throw new Error('Brakuje konfiguracji REST API.')
+  }
+
+  const response = await fetch(`${apiUrl}/${correctionId}/editing`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-WP-Nonce': nonce,
+    },
+    body: JSON.stringify({
+      editor,
+      token,
+      nonce,
+    }),
+  })
+
+  if (!response.ok) {
+    await handleApiError(response, 'Nie udało się rozpocząć edycji.')
+  }
+
+  return response.json()
+}
+
+export const stopCorrectionEditingRequest = async (correctionId, token) => {
+  const { apiUrl, nonce } = getCorrectionsApiConfig()
+
+  if (!apiUrl || !nonce) {
+    throw new Error('Brakuje konfiguracji REST API.')
+  }
+
+  const response = await fetch(`${apiUrl}/${correctionId}/editing`, {
+    method: 'DELETE',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-WP-Nonce': nonce,
+    },
+    body: JSON.stringify({
+      token,
+      nonce,
+    }),
+  })
+
+  if (!response.ok) {
+    await handleApiError(response, 'Nie udało się zakończyć edycji.')
+  }
+
+  return response.json()
+}

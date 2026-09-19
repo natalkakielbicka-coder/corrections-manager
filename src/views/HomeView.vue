@@ -13,20 +13,25 @@ import { useCurrentUser } from '../composables/useCurrentUser'
 import { useToast } from '../composables/useToast'
 import { correctionStatuses } from '../constants/correctionStatuses'
 import UserEntryScreen from '../components/UserEntryScreen.vue'
+import { startCorrectionEditingRequest, stopCorrectionEditingRequest } from '../api/correctionsApi'
 
 const appElement = document.querySelector('#corrections-manager-app')
 
 const siteName = appElement?.dataset.siteName || 'Strona internetowa'
 
 const REFRESH_INTERVAL = 15_000
+const EDITING_HEARTBEAT_INTERVAL = 30_000
 
 let correctionsRefreshIntervalId = null
+let editingHeartbeatIntervalId = null
 
 const isSubmittingCorrectionForm = ref(false)
 const isDeletingCorrection = ref(false)
 const isDeletingComment = ref(false)
 const updatingStatusCorrectionIds = ref([])
 const addingCommentCorrectionIds = ref([])
+const editingByOther = ref('')
+const activeEditingSession = ref(null)
 
 const hasPendingMutation = computed(() => {
   return (
@@ -52,9 +57,15 @@ const refreshCorrectionsIfPossible = () => {
 }
 
 const handleVisibilityChange = () => {
-  if (document.visibilityState === 'visible') {
-    refreshCorrectionsIfPossible()
+  if (document.visibilityState !== 'visible') {
+    return
   }
+
+  if (activeEditingSession.value) {
+    refreshEditingPresence()
+  }
+
+  refreshCorrectionsIfPossible()
 }
 
 const {
@@ -83,6 +94,8 @@ onUnmounted(() => {
   if (correctionsRefreshIntervalId) {
     window.clearInterval(correctionsRefreshIntervalId)
   }
+
+  releaseEditingPresence()
 
   document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
@@ -177,17 +190,46 @@ const openCorrectionForm = () => {
 
 const correctionToDelete = ref(null)
 
-const openEditModal = (correctionId) => {
-  correctionToEdit.value = sortedCorrections.value.find((correction) => {
-    return correction.id === correctionId
+const openEditModal = async (correctionId) => {
+  const correction = sortedCorrections.value.find((correctionItem) => {
+    return correctionItem.id === correctionId
   })
 
-  if (!correctionToEdit.value) return
+  if (!correction) return
+
+  const token = createEditingToken()
+
+  correctionToEdit.value = correction
+  editingByOther.value = ''
+
+  activeEditingSession.value = {
+    correctionId,
+    token,
+  }
 
   isCorrectionFormOpen.value = true
+
+  try {
+    const result = await startCorrectionEditingRequest(correctionId, {
+      editor: currentUserName.value,
+      token,
+    })
+
+    editingByOther.value = result.acquired ? '' : result.editingBy || ''
+
+    startEditingHeartbeat()
+  } catch (error) {
+    console.error(error)
+
+    showToast('Nie udało się sprawdzić, czy ktoś edytuje tę poprawkę.', 'delete')
+
+    //startEditingHeartbeat()
+  }
 }
 
 const closeCorrectionForm = () => {
+  releaseEditingPresence()
+
   isCorrectionFormOpen.value = false
   correctionToEdit.value = null
 }
@@ -352,6 +394,65 @@ const confirmDeleteComment = async () => {
     isDeletingComment.value = false
   }
 }
+
+const createEditingToken = () => {
+  if (typeof window.crypto?.randomUUID === 'function') {
+    return window.crypto.randomUUID()
+  }
+
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
+
+const stopEditingHeartbeat = () => {
+  if (!editingHeartbeatIntervalId) return
+
+  window.clearInterval(editingHeartbeatIntervalId)
+
+  editingHeartbeatIntervalId = null
+}
+
+const refreshEditingPresence = async () => {
+  const session = activeEditingSession.value
+
+  if (!session || document.visibilityState !== 'visible') {
+    return
+  }
+
+  try {
+    const result = await startCorrectionEditingRequest(session.correctionId, {
+      editor: currentUserName.value,
+      token: session.token,
+    })
+
+    editingByOther.value = result.acquired ? '' : result.editingBy || ''
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const startEditingHeartbeat = () => {
+  stopEditingHeartbeat()
+
+  editingHeartbeatIntervalId = window.setInterval(
+    refreshEditingPresence,
+    EDITING_HEARTBEAT_INTERVAL,
+  )
+}
+
+const releaseEditingPresence = () => {
+  const session = activeEditingSession.value
+
+  stopEditingHeartbeat()
+
+  activeEditingSession.value = null
+  editingByOther.value = ''
+
+  if (!session) return
+
+  stopCorrectionEditingRequest(session.correctionId, session.token).catch((error) => {
+    console.error(error)
+  })
+}
 </script>
 
 <template>
@@ -443,6 +544,7 @@ const confirmDeleteComment = async () => {
       v-if="isCorrectionFormOpen"
       :correction="correctionToEdit"
       :is-submitting="isSubmittingCorrectionForm"
+      :editing-by-other="editingByOther"
       @close="closeCorrectionForm"
       @submit="handleCorrectionSubmit"
     />

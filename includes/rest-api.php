@@ -263,18 +263,6 @@ function corrections_manager_get_corrections(): WP_REST_Response
         ];
     }
 
-    $editing_by = null;
-    $editing_expires_at = null;
-
-    if (
-        ! empty($correction['editing_expires_at'])
-        && strtotime($correction['editing_expires_at']) > time()
-    ) {
-        $editing_by = $correction['editing_by'];
-        $editing_expires_at =
-            $correction['editing_expires_at'];
-    }
-
     $response = [];
 
     foreach ($corrections as $correction) {
@@ -282,6 +270,18 @@ function corrections_manager_get_corrections(): WP_REST_Response
         $image_id = $correction['image_id']
             ? (int) $correction['image_id']
             : null;
+
+        $editing_by = null;
+        $editing_expires_at = null;
+
+        if (
+            ! empty($correction['editing_expires_at'])
+            && strtotime($correction['editing_expires_at']) > time()
+        ) {
+            $editing_by = $correction['editing_by'];
+            $editing_expires_at =
+                $correction['editing_expires_at'];
+        }
 
         $response[] = [
             'id' => $correction_id,

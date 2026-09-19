@@ -490,13 +490,6 @@ function corrections_manager_create_correction(
         $request->get_param('pageId')
     );
 
-    $image_id =
-    corrections_manager_upload_image($request);
-
-    if (is_wp_error($image_id)) {
-        return $image_id;
-    }
-
     if (
         'page' !== get_post_type($page_id)
         || 'publish' !== get_post_status($page_id)
@@ -506,6 +499,13 @@ function corrections_manager_create_correction(
             'Wybrana strona nie istnieje.',
             ['status' => 400]
         );
+    }
+
+    $image_id =
+        corrections_manager_upload_image($request);
+
+    if (is_wp_error($image_id)) {
+        return $image_id;
     }
 
     $created_at = current_time('mysql', true);

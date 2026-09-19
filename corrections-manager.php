@@ -22,12 +22,118 @@ define('CORRECTIONS_MANAGER_URL', plugin_dir_url(__FILE__));
 require_once CORRECTIONS_MANAGER_PATH . 'includes/rest-api.php';
 
 /**
+ * Pobiera wpis aplikacji z manifestu Vite.
+ *
+ * @return array|WP_Error
+ */
+function corrections_manager_get_build_entry()
+{
+    $manifest_path =
+        CORRECTIONS_MANAGER_PATH . 'build/.vite/manifest.json';
+
+    if (! is_readable($manifest_path)) {
+        return new WP_Error(
+            'corrections_manager_manifest_missing',
+            'Nie znaleziono pliku build/.vite/manifest.json.'
+        );
+    }
+
+    $manifest_contents = file_get_contents(
+        $manifest_path
+    );
+
+    if (false === $manifest_contents) {
+        return new WP_Error(
+            'corrections_manager_manifest_read_failed',
+            'Nie udało się odczytać manifestu aplikacji.'
+        );
+    }
+
+    $manifest = json_decode(
+        $manifest_contents,
+        true
+    );
+
+    if (
+        ! is_array($manifest)
+        || JSON_ERROR_NONE !== json_last_error()
+    ) {
+        return new WP_Error(
+            'corrections_manager_manifest_invalid',
+            'Manifest aplikacji zawiera nieprawidłowy JSON.'
+        );
+    }
+
+    if (
+        empty($manifest['index.html'])
+        || empty($manifest['index.html']['file'])
+    ) {
+        return new WP_Error(
+            'corrections_manager_manifest_entry_missing',
+            'W manifeście brakuje głównego pliku aplikacji.'
+        );
+    }
+
+    $entry = $manifest['index.html'];
+
+    $script_path =
+        CORRECTIONS_MANAGER_PATH
+        . 'build/'
+        . $entry['file'];
+
+    if (! is_readable($script_path)) {
+        return new WP_Error(
+            'corrections_manager_script_missing',
+            'Nie znaleziono głównego pliku JavaScript aplikacji.'
+        );
+    }
+
+    if (! empty($entry['css'])) {
+        foreach ($entry['css'] as $css_file) {
+            $css_path =
+                CORRECTIONS_MANAGER_PATH
+                . 'build/'
+                . $css_file;
+
+            if (! is_readable($css_path)) {
+                return new WP_Error(
+                    'corrections_manager_css_missing',
+                    'Nie znaleziono pliku CSS aplikacji.'
+                );
+            }
+        }
+    }
+
+    return $entry;
+}
+
+/**
  * Wyświetla kontener aplikacji Vue.
  *
  * @return string
  */
 function corrections_manager_render_app(): string
 {
+    $build_entry =
+    corrections_manager_get_build_entry();
+
+    if (is_wp_error($build_entry)) {
+        if (current_user_can('manage_options')) {
+            return sprintf(
+                '<div class="corrections-manager-error">
+                    <strong>Corrections Manager:</strong> %s
+                </div>',
+                esc_html(
+                    $build_entry->get_error_message()
+                )
+            );
+        }
+
+        return '<div class="corrections-manager-error">
+            Panel poprawek jest obecnie niedostępny.
+        </div>';
+    }
+
     $corrections_url = rest_url(
         'corrections-manager/v1/corrections'
     );
@@ -86,22 +192,11 @@ function corrections_manager_enqueue_assets(): void
         return;
     }
 
-    $manifest_path = CORRECTIONS_MANAGER_PATH . 'build/.vite/manifest.json';
+    $entry = corrections_manager_get_build_entry();
 
-    if (! file_exists($manifest_path)) {
+    if (is_wp_error($entry)) {
         return;
     }
-
-    $manifest = json_decode(
-        file_get_contents($manifest_path),
-        true
-    );
-
-    if (! isset($manifest['index.html'])) {
-        return;
-    }
-
-    $entry = $manifest['index.html'];
 
     wp_enqueue_style(
         'corrections-manager-font',
@@ -217,4 +312,35 @@ function corrections_manager_maybe_upgrade_database(): void
 add_action(
     'plugins_loaded',
     'corrections_manager_maybe_upgrade_database'
+);
+
+/**
+ * Informuje administratora o brakującym buildzie aplikacji.
+ */
+function corrections_manager_build_admin_notice(): void
+{
+    $build_entry =
+        corrections_manager_get_build_entry();
+
+    if (! is_wp_error($build_entry)) {
+        return;
+    }
+
+    ?>
+    <div class="notice notice-error">
+        <p>
+            <strong>Corrections Manager:</strong>
+            <?php
+            echo esc_html(
+                $build_entry->get_error_message()
+            );
+            ?>
+        </p>
+    </div>
+    <?php
+}
+
+add_action(
+    'admin_notices',
+    'corrections_manager_build_admin_notice'
 );

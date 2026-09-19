@@ -84,7 +84,7 @@ export const updateCorrectionRequest = async (correctionId, correctionData) => {
   formData.append('title', correctionData.title)
   formData.append('description', correctionData.description)
   formData.append('pageId', String(correctionData.pageId))
-  formData.append('expectedUpdatedAt', correctionData.expectedUpdatedAt ?? '')
+  formData.append('expectedVersion', String(correctionData.expectedVersion))
   formData.append('removeImage', correctionData.removeImage ? '1' : '0')
   formData.append('nonce', nonce)
 
@@ -109,7 +109,7 @@ export const updateCorrectionRequest = async (correctionId, correctionData) => {
   return response.json()
 }
 
-export const updateCorrectionStatusRequest = async (correctionId, status) => {
+export const updateCorrectionStatusRequest = async (correctionId, status, expectedVersion) => {
   const { apiUrl, nonce } = getCorrectionsApiConfig()
 
   if (!apiUrl || !nonce) {
@@ -127,6 +127,7 @@ export const updateCorrectionStatusRequest = async (correctionId, status) => {
 
     body: JSON.stringify({
       status,
+      expectedVersion,
       nonce,
     }),
   })

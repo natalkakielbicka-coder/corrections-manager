@@ -80,8 +80,9 @@ function corrections_manager_register_rest_routes(): void
                     'required' => true,
                     'sanitize_callback' => 'absint',
                 ],
-                'expectedUpdatedAt' => [
-                    'sanitize_callback' => 'sanitize_text_field',
+              'expectedVersion' => [
+                    'required' => true,
+                    'sanitize_callback' => 'absint',
                 ],
                 'removeImage' => [
                     'sanitize_callback' => 'rest_sanitize_boolean',
@@ -117,6 +118,10 @@ function corrections_manager_register_rest_routes(): void
                             true
                         );
                     },
+                ],
+                'expectedVersion' => [
+                    'required' => true,
+                    'sanitize_callback' => 'absint',
                 ],
             ],
         ]
@@ -242,6 +247,7 @@ function corrections_manager_get_corrections(): WP_REST_Response
             'isNew' => (bool) $correction['is_new'],
             'createdAt' => $correction['created_at'],
             'updatedAt' => $correction['updated_at'],
+            'version' => (int) $correction['version'],
             'comments' => $comments_by_correction[$correction_id] ?? [],
         ];
     }
@@ -447,11 +453,6 @@ function corrections_manager_create_correction(
         );
     }
 
-    $last_number = (int) $wpdb->get_var(
-        "SELECT MAX(correction_number)
-        FROM {$table_name}"
-    );
-
     $created_at = current_time('mysql', true);
 
     $inserted = $wpdb->insert(
@@ -467,6 +468,7 @@ function corrections_manager_create_correction(
             'is_new' => 1,
             'created_at' => $created_at,
             'updated_at' => null,
+            'version' => 1,
         ],
         [
             '%d',
@@ -477,6 +479,7 @@ function corrections_manager_create_correction(
             '%s',
             '%d',
             '%d',
+            '%s',
             '%s',
             '%s',
         ]
@@ -579,7 +582,7 @@ function corrections_manager_update_correction(
 
     $existing_correction = $wpdb->get_row(
         $wpdb->prepare(
-            "SELECT id, updated_at, image_id
+            "SELECT id, image_id, version
             FROM {$table_name}
             WHERE id = %d",
             $correction_id
@@ -594,17 +597,17 @@ function corrections_manager_update_correction(
         );
     }
 
-    $current_updated_at =
-    $existing_correction->updated_at ?: null;
+    $expected_version = absint(
+        $request->get_param('expectedVersion')
+    );
 
-    $expected_updated_at =
-        $request->get_param('expectedUpdatedAt')
-        ?: null;
-
-    if ($current_updated_at !== $expected_updated_at) {
+    if (
+        (int) $existing_correction->version
+        !== $expected_version
+    ) {
         return new WP_Error(
             'corrections_manager_edit_conflict',
-            'Ta poprawka została zmieniona przez inną osobę. Zamknij formularz i otwórz go ponownie.',
+            'Ta poprawka została zmieniona przez inną osobę. Pobierz najnowszą wersję i spróbuj ponownie.',
             ['status' => 409]
         );
     }
@@ -649,6 +652,8 @@ function corrections_manager_update_correction(
 
     $updated_at = current_time('mysql', true);
 
+    $new_version = $expected_version + 1;
+
     $updated = $wpdb->update(
         $table_name,
         [
@@ -659,9 +664,11 @@ function corrections_manager_update_correction(
             'page_id' => $page_id,
             'image_id' => $final_image_id,
             'updated_at' => $updated_at,
+            'version' => $new_version,
         ],
         [
             'id' => $correction_id,
+            'version' => $expected_version,
         ],
         [
             '%s',
@@ -687,6 +694,21 @@ function corrections_manager_update_correction(
             'corrections_manager_update_failed',
             'Nie udało się zaktualizować poprawki.',
             ['status' => 500]
+        );
+    }
+
+    if (0 === $updated) {
+        if ($new_image_id) {
+            wp_delete_attachment(
+                $new_image_id,
+                true
+            );
+        }
+
+        return new WP_Error(
+            'corrections_manager_edit_conflict',
+            'Ta poprawka została właśnie zmieniona przez inną osobę. Pobierz najnowszą wersję i spróbuj ponownie.',
+            ['status' => 409]
         );
     }
 
@@ -721,6 +743,7 @@ function corrections_manager_update_correction(
                 )
                 : '',
             'updatedAt' => $updated_at,
+            'version' => $new_version,
         ]
     );
 }
@@ -745,6 +768,12 @@ function corrections_manager_update_status(
     );
 
     $status = $request->get_param('status');
+
+    $expected_version = absint(
+        $request->get_param('expectedVersion')
+    );
+
+    $new_version = $expected_version + 1;
 
     $existing_correction = $wpdb->get_row(
         $wpdb->prepare(
@@ -771,16 +800,20 @@ function corrections_manager_update_status(
             'status' => $status,
             'is_new' => 0,
             'updated_at' => $updated_at,
+            'version' => $new_version,
         ],
         [
             'id' => $correction_id,
+            'version' => $expected_version,
         ],
         [
             '%s',
             '%d',
             '%s',
+            '%d',
         ],
         [
+            '%d',
             '%d',
         ]
     );
@@ -793,12 +826,21 @@ function corrections_manager_update_status(
         );
     }
 
+    if (0 === $updated) {
+        return new WP_Error(
+            'corrections_manager_status_conflict',
+            'Status tej poprawki został już zmieniony przez inną osobę.',
+            ['status' => 409]
+        );
+    }
+
     return rest_ensure_response(
         [
             'id' => $correction_id,
             'status' => $status,
             'isNew' => false,
             'updatedAt' => $updated_at,
+            'version' => $new_version,
         ]
     );
 }

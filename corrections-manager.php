@@ -12,6 +12,7 @@ if (! defined('ABSPATH')) {
 }
 
 define('CORRECTIONS_MANAGER_VERSION', '1.0.0');
+define('CORRECTIONS_MANAGER_DB_VERSION', '1.1.0');
 define('CORRECTIONS_MANAGER_FILE', __FILE__);
 define('CORRECTIONS_MANAGER_PATH', plugin_dir_path(__FILE__));
 define('CORRECTIONS_MANAGER_URL', plugin_dir_url(__FILE__));
@@ -158,6 +159,7 @@ function corrections_manager_activate(): void
         is_new tinyint(1) NOT NULL DEFAULT 1,
         created_at datetime NOT NULL,
         updated_at datetime DEFAULT NULL,
+        version bigint(20) unsigned NOT NULL DEFAULT 1,
         PRIMARY KEY  (id),
         KEY correction_number (correction_number),
         KEY page_id (page_id),
@@ -179,11 +181,35 @@ function corrections_manager_activate(): void
 
     update_option(
         'corrections_manager_db_version',
-        CORRECTIONS_MANAGER_VERSION
+        CORRECTIONS_MANAGER_DB_VERSION
     );
 }
 
 register_activation_hook(
     CORRECTIONS_MANAGER_FILE,
     'corrections_manager_activate'
+);
+
+/**
+ * Aktualizuje strukturę bazy po zmianie wersji schematu.
+ */
+function corrections_manager_maybe_upgrade_database(): void
+{
+    $installed_version = get_option(
+        'corrections_manager_db_version'
+    );
+
+    if (
+        $installed_version ===
+        CORRECTIONS_MANAGER_DB_VERSION
+    ) {
+        return;
+    }
+
+    corrections_manager_activate();
+}
+
+add_action(
+    'plugins_loaded',
+    'corrections_manager_maybe_upgrade_database'
 );

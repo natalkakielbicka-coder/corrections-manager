@@ -64,7 +64,7 @@ export const useCorrections = () => {
 
     const updatedCorrection = await updateCorrectionRequest(correctionId, {
       ...correctionData,
-      expectedUpdatedAt: correction.updatedAt,
+      expectedVersion: correction.version,
     })
 
     Object.assign(correction, updatedCorrection)
@@ -110,8 +110,6 @@ export const useCorrections = () => {
       return
     }
 
-    const updatedCorrection = await updateCorrectionStatusRequest(correctionId, status)
-
     const correction = corrections.value.find((correctionItem) => {
       return correctionItem.id === correctionId
     })
@@ -119,6 +117,12 @@ export const useCorrections = () => {
     if (!correction) {
       return
     }
+
+    const updatedCorrection = await updateCorrectionStatusRequest(
+      correctionId,
+      status,
+      correction.version,
+    )
 
     Object.assign(correction, updatedCorrection)
 

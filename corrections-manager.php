@@ -19,6 +19,7 @@ define('CORRECTIONS_MANAGER_FILE', __FILE__);
 define('CORRECTIONS_MANAGER_PATH', plugin_dir_path(__FILE__));
 define('CORRECTIONS_MANAGER_URL', plugin_dir_url(__FILE__));
 
+require_once CORRECTIONS_MANAGER_PATH . 'includes/settings.php';
 require_once CORRECTIONS_MANAGER_PATH . 'includes/rest-api.php';
 
 /**

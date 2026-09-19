@@ -3,6 +3,8 @@
  * Plugin Name: Corrections Manager
  * Description: Panel do zgłaszania i obsługi poprawek na stronie internetowej.
  * Version: 1.0.0
+ * Requires at least: 6.5
+ * Requires PHP: 7.4
  * Author: Natalia Kiełbicka
  * Text Domain: corrections-manager
  */

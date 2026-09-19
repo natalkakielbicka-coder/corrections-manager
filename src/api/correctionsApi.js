@@ -24,7 +24,7 @@ export const fetchCorrections = async () => {
   })
 
   if (!response.ok) {
-    throw new Error('Nie udało się pobrać poprawek.')
+    await handleApiError(response, 'Nie udało się pobrać poprawek.')
   }
 
   return response.json()

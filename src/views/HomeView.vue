@@ -222,8 +222,6 @@ const openEditModal = async (correctionId) => {
     console.error(error)
 
     showToast('Nie udało się sprawdzić, czy ktoś edytuje tę poprawkę.', 'delete')
-
-    //startEditingHeartbeat()
   }
 }
 

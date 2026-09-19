@@ -50,14 +50,14 @@ const handleSubmit = () => {
 <style scoped>
 .user-entry {
   display: grid;
-  min-height: 100vh;
-  padding: 24px;
+  width: 100%;
+  padding: 48px 24px;
   place-items: center;
 }
 
 .user-entry__content {
   width: min(100%, 480px);
-  padding: 48px;
+  padding: 40px;
   border: 1px solid #dfe7e4;
   border-radius: 16px;
   background-color: #ffffff;

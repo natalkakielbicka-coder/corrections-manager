@@ -1,4 +1,4 @@
-:root {
+#corrections-manager-app {
   --color-brand: #089c98;
   --color-brand-hover: #078783;
   --color-brand-light: #d9f3f1;
@@ -9,49 +9,18 @@
   --color-text: #40516c;
   --color-muted: #75849d;
   --color-border: #dbe2e8;
-}
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html {
-  min-width: 320px;
-  min-height: 100%;
-}
-
-body {
-  min-width: 320px;
-  min-height: 100vh;
-  margin: 0;
-  background-color: var(--color-background);
-  color: var(--color-text);
-  font-family: 'Manrope', sans-serif;
-}
-
-button,
-input,
-textarea,
-select {
-  font: inherit;
-}
-
-button {
-  cursor: pointer;
-}
-
-img,
-svg {
-  display: block;
-  max-width: 100%;
-}
-
-#corrections-manager-app {
+  width: 100%;
   color: var(--color-text);
   font-family: 'Manrope', sans-serif;
   font-size: 16px;
+}
+
+#corrections-manager-app,
+#corrections-manager-app *,
+#corrections-manager-app *::before,
+#corrections-manager-app *::after {
+  box-sizing: border-box;
 }
 
 #corrections-manager-app * {
@@ -63,6 +32,16 @@ svg {
 #corrections-manager-app textarea,
 #corrections-manager-app select {
   font-family: inherit;
+}
+
+#corrections-manager-app button {
+  cursor: pointer;
+}
+
+#corrections-manager-app img,
+#corrections-manager-app svg {
+  display: block;
+  max-width: 100%;
 }
 
 #corrections-manager-app button:focus {

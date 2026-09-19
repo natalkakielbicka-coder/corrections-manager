@@ -1,5 +1,5 @@
 @import './base.css';
 
 #corrections-manager-app {
-  min-height: 100vh;
+  width: 100%;
 }

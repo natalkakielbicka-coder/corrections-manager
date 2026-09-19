@@ -481,7 +481,7 @@ function corrections_manager_create_correction(
             '%d',
             '%s',
             '%s',
-            '%s',
+            '%d',
         ]
     );
 
@@ -555,6 +555,7 @@ function corrections_manager_create_correction(
             'isNew' => true,
             'createdAt' => $created_at,
             'updatedAt' => null,
+            'version' => 1,
             'comments' => [],
         ],
         201
@@ -674,10 +675,12 @@ function corrections_manager_update_correction(
             '%s',
             '%s',
             '%d',
+            '%d',
             '%s',
-            '%s',
+            '%d',
         ],
         [
+            '%d',
             '%d',
         ]
     );

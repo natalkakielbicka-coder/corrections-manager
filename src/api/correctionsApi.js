@@ -117,14 +117,13 @@ export const updateCorrectionStatusRequest = async (correctionId, status, expect
   }
 
   const response = await fetch(`${apiUrl}/${correctionId}/status`, {
-    method: 'PATCH',
-
+    method: 'POST',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
       'X-WP-Nonce': nonce,
+      'X-HTTP-Method-Override': 'PATCH',
     },
-
     body: JSON.stringify({
       status,
       expectedVersion,
@@ -147,12 +146,13 @@ export const deleteCorrectionRequest = async (correctionId) => {
   }
 
   const response = await fetch(`${apiUrl}/${correctionId}`, {
-    method: 'DELETE',
+    method: 'POST',
 
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
       'X-WP-Nonce': nonce,
+      'X-HTTP-Method-Override': 'DELETE',
     },
 
     body: JSON.stringify({
@@ -261,11 +261,12 @@ export const stopCorrectionEditingRequest = async (correctionId, token) => {
   }
 
   const response = await fetch(`${apiUrl}/${correctionId}/editing`, {
-    method: 'DELETE',
+    method: 'POST',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
       'X-WP-Nonce': nonce,
+      'X-HTTP-Method-Override': 'DELETE',
     },
     body: JSON.stringify({
       token,

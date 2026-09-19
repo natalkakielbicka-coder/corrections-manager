@@ -305,7 +305,9 @@ function corrections_manager_get_corrections(): WP_REST_Response
         ];
     }
 
-    return rest_ensure_response($response);
+    return corrections_manager_disable_rest_cache(
+        rest_ensure_response($response)
+    );
 }
 
 /**
@@ -1311,4 +1313,19 @@ function corrections_manager_stop_editing(
             'released' => true,
         ]
     );
+}
+
+/**
+ * Dodaje nagłówki zapobiegające cache'owaniu
+ * odpowiedzi Corrections Manager REST API.
+ */
+function corrections_manager_disable_rest_cache(
+    WP_REST_Response $response
+): WP_REST_Response {
+    $response->header(
+        'Cache-Control',
+        'no-store, no-cache, must-revalidate, max-age=0'
+    );
+
+    return $response;
 }

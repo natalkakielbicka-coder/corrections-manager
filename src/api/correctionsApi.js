@@ -25,6 +25,7 @@ export const fetchCorrections = async () => {
   }
 
   const response = await fetch(apiUrl, {
+    cache: 'no-store',
     headers: {
       Accept: 'application/json',
     },
@@ -205,12 +206,13 @@ export const deleteCommentRequest = async (correctionId, commentId) => {
   }
 
   const response = await fetch(`${apiUrl}/${correctionId}/comments/${commentId}`, {
-    method: 'DELETE',
+    method: 'POST',
 
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
       'X-WP-Nonce': nonce,
+      'X-HTTP-Method-Override': 'DELETE',
     },
 
     body: JSON.stringify({

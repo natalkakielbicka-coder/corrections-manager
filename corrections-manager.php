@@ -337,3 +337,35 @@ add_action(
     'admin_notices',
     'corrections_manager_build_admin_notice'
 );
+
+/**
+ * Wyłącza cache strony zawierającej Corrections Manager.
+ */
+function corrections_manager_disable_page_cache(): void
+{
+    global $post;
+
+    if (! $post instanceof WP_Post) {
+        return;
+    }
+
+    if (
+        ! has_shortcode(
+            $post->post_content,
+            'corrections_manager'
+        )
+    ) {
+        return;
+    }
+
+    if (! defined('DONOTCACHEPAGE')) {
+        define('DONOTCACHEPAGE', true);
+    }
+
+    nocache_headers();
+}
+
+add_action(
+    'template_redirect',
+    'corrections_manager_disable_page_cache'
+);

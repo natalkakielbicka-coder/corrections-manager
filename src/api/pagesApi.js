@@ -1,3 +1,5 @@
+import { apiFetch, handleApiError } from './apiClient'
+
 const getPagesApiUrl = () => {
   const appElement = document.querySelector('#corrections-manager-app')
 
@@ -24,7 +26,7 @@ export const fetchPages = async () => {
     throw new Error('Nie znaleziono adresu API stron.')
   }
 
-  const response = await fetch(apiUrl, {
+  const response = await apiFetch(apiUrl, {
     cache: 'no-store',
     headers: {
       Accept: 'application/json',
@@ -32,7 +34,7 @@ export const fetchPages = async () => {
   })
 
   if (!response.ok) {
-    throw new Error('Nie udało się pobrać stron.')
+    await handleApiError(response, 'Nie udało się pobrać stron.')
   }
 
   return response.json()

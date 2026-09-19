@@ -1,12 +1,4 @@
-const handleApiError = async (response, fallbackMessage) => {
-  if (response.status === 403) {
-    throw new Error('Sesja wygasła. Odśwież stronę i spróbuj ponownie.')
-  }
-
-  const errorData = await response.json().catch(() => null)
-
-  throw new Error(errorData?.message ?? fallbackMessage)
-}
+import { apiFetch, handleApiError } from './apiClient'
 
 const getCorrectionsApiConfig = () => {
   const appElement = document.querySelector('#corrections-manager-app')
@@ -24,7 +16,7 @@ export const fetchCorrections = async () => {
     throw new Error('Nie znaleziono adresu REST API.')
   }
 
-  const response = await fetch(apiUrl, {
+  const response = await apiFetch(apiUrl, {
     cache: 'no-store',
     headers: {
       Accept: 'application/json',
@@ -57,7 +49,8 @@ export const createCorrection = async (correctionData) => {
     formData.append('image', correctionData.imageFile)
   }
 
-  const response = await fetch(apiUrl, {
+  const response = await apiFetch(apiUrl, {
+    cache: 'no-store',
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -93,7 +86,7 @@ export const updateCorrectionRequest = async (correctionId, correctionData) => {
     formData.append('image', correctionData.imageFile)
   }
 
-  const response = await fetch(`${apiUrl}/${correctionId}`, {
+  const response = await apiFetch(`${apiUrl}/${correctionId}`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -117,7 +110,7 @@ export const updateCorrectionStatusRequest = async (correctionId, status, expect
     throw new Error('Brakuje konfiguracji REST API.')
   }
 
-  const response = await fetch(`${apiUrl}/${correctionId}/status`, {
+  const response = await apiFetch(`${apiUrl}/${correctionId}/status`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -146,7 +139,7 @@ export const deleteCorrectionRequest = async (correctionId) => {
     throw new Error('Brakuje konfiguracji REST API.')
   }
 
-  const response = await fetch(`${apiUrl}/${correctionId}`, {
+  const response = await apiFetch(`${apiUrl}/${correctionId}`, {
     method: 'POST',
 
     headers: {
@@ -175,7 +168,7 @@ export const addCommentRequest = async (correctionId, { content, author }) => {
     throw new Error('Brakuje konfiguracji REST API.')
   }
 
-  const response = await fetch(`${apiUrl}/${correctionId}/comments`, {
+  const response = await apiFetch(`${apiUrl}/${correctionId}/comments`, {
     method: 'POST',
 
     headers: {
@@ -205,16 +198,14 @@ export const deleteCommentRequest = async (correctionId, commentId) => {
     throw new Error('Brakuje konfiguracji REST API.')
   }
 
-  const response = await fetch(`${apiUrl}/${correctionId}/comments/${commentId}`, {
+  const response = await apiFetch(`${apiUrl}/${correctionId}/comments/${commentId}`, {
     method: 'POST',
-
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
       'X-WP-Nonce': nonce,
       'X-HTTP-Method-Override': 'DELETE',
     },
-
     body: JSON.stringify({
       nonce,
     }),
@@ -234,7 +225,7 @@ export const startCorrectionEditingRequest = async (correctionId, { editor, toke
     throw new Error('Brakuje konfiguracji REST API.')
   }
 
-  const response = await fetch(`${apiUrl}/${correctionId}/editing`, {
+  const response = await apiFetch(`${apiUrl}/${correctionId}/editing`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -262,7 +253,7 @@ export const stopCorrectionEditingRequest = async (correctionId, token) => {
     throw new Error('Brakuje konfiguracji REST API.')
   }
 
-  const response = await fetch(`${apiUrl}/${correctionId}/editing`, {
+  const response = await apiFetch(`${apiUrl}/${correctionId}/editing`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
